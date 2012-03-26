@@ -58,7 +58,11 @@ public class Editor implements Serializable{
 		}
 		this.world = world;
 		this.screenSize = screenSize;
-		Area = new Rectangle(screenSize.width-150, 0, 150, screenSize.height-150);
+		int s = screenSize.height;
+		if(s>1000){
+			s-=150;
+		}
+		Area = new Rectangle(screenSize.width-150, 0, 150, s);
 		setType("tile");
 		setSelectedTeam(game.redTeam);
 		selectedType="groundTile1.png";
@@ -73,6 +77,7 @@ public class Editor implements Serializable{
 		drawMainGui(g);
 	}
 	public void mouseClick(int x, int y){
+		System.out.println("x: "+x+", y: "+y);
 		for(Image img: TileMap.sprite.values()){
 			if(buttons.get(img).contains(x, y)){
 				String tempSelectedType[]=img.getResourceReference().split("/");

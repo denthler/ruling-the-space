@@ -226,6 +226,9 @@ public class GameObject implements Serializable {
 	public boolean isAlive() {
 		return alive;
 	}
+	public void setAlive(boolean b){
+		alive = b;
+	}
 	public void destroy() {
 		if(world.getGame().getSelectedObjects()!=null)
 			world.getGame().getSelectedObjects().remove(this);

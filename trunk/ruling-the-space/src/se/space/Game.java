@@ -57,7 +57,7 @@ public class Game extends BasicGame implements Serializable
 	private Point dragSelect = null;
 	private Dimension screenSize;
 	private boolean quit = false;
-	private boolean EditMode = false;
+	private boolean editMode = false;
 	private boolean dragView = false;
 	private boolean paused = false;
 	private boolean selectMode = false;
@@ -198,7 +198,7 @@ public class Game extends BasicGame implements Serializable
 			}
 		}
 		boolean lcont = false;
-		if(input.isKeyDown(Input.KEY_LCONTROL)){
+		if(!editMode && input.isKeyDown(Input.KEY_LCONTROL)){
 			lcont = true;
 			for(int i=0;i<numberKeys.length;i++){
 				if(input.isKeyPressed(numberKeys[i])){
@@ -214,7 +214,7 @@ public class Game extends BasicGame implements Serializable
 				}
 			}
 		}
-		if(!lcont){
+		if(!editMode && !lcont){
 			for(int i=0;i<numberKeys.length;i++){
 				if(input.isKeyPressed(numberKeys[i])){
 					if(hotkeyTimer.isDone() || i!=lastUsedGroup){
@@ -261,14 +261,14 @@ public class Game extends BasicGame implements Serializable
 				}
 			}
 		}
-		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_S)&&EditMode){
+		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_S)&&editMode){
 			tiles.saveMap();
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_O)){
 			tiles.loadMap();
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_E)){
-			this.EditMode=!this.EditMode;
+			this.editMode=!this.editMode;
 		}
 		if(input.isKeyDown(Input.KEY_P)){
 			if(t.isDone()){
@@ -343,6 +343,12 @@ public class Game extends BasicGame implements Serializable
 			updateCount++;
 		}
 	}
+	public boolean isEditMode() {
+		return editMode;
+	}
+	public void setEditMode(boolean editMode) {
+		this.editMode = editMode;
+	}
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException {
 		Timer.updateTimers(50);
@@ -355,7 +361,8 @@ public class Game extends BasicGame implements Serializable
 		
 		if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)){
 			//g.drawString("BLA: "+input.getMouseX()+"-"+input.getMouseY(), worldView.getScreenSize().width/2-75, worldView.getScreenSize().height/2);
-			if(editor.Area.contains(input.getMouseX(),input.getMouseY())){
+			//g.drawString("_"+editor.Area.getMaxY()+editor.Area.getMinY(), worldView.getScreenSize().width/2-75, worldView.getScreenSize().height/2+20);
+			if(editMode && editor.Area.contains(input.getMouseX(),input.getMouseY())){
 				editor.mouseClick(input.getMouseX(), input.getMouseY());
 			}
 			else if(menu.Area.contains(input.getMouseX(),input.getMouseY())){
@@ -381,7 +388,7 @@ public class Game extends BasicGame implements Serializable
 				
 				
 			}
-			if(EditMode){
+			if(editMode){
 				if(editor.getType().equals("tile"))
 					tiles.setTile(mouseWorldX, mouseWorldY, editor.getSelectedType());
 				else if(!minimap.Area.contains(input.getMouseX(), input.getMouseY()) 
@@ -440,7 +447,7 @@ public class Game extends BasicGame implements Serializable
 					}
 				}
 			}
-			else if(isHost && !EditMode){
+			else if(isHost && !editMode){
 				int spaceX=0,spaceY=0;
 				if(this.getSelectedObjects()!=null)
 					for(GameObject ob : this.getSelectedObjects()){
@@ -453,6 +460,14 @@ public class Game extends BasicGame implements Serializable
 						}
 					}
 			}
+			else if(editMode){
+				Rectangle rct = new Rectangle(mouseWorldX,mouseWorldY,1,1);
+				setSelectedObjects(gameWorld.getAllUnits(rct));
+				for(GameObject ob : selectedObjects){
+					ob.setAlive(false);
+				}
+				selectedObjects.clear();
+			}
 			else{
 
 			}
@@ -461,9 +476,9 @@ public class Game extends BasicGame implements Serializable
 				&& !gui.Area.contains(input.getMouseX(), input.getMouseY())==true
 				&& (!EditMode||!editor.Area.contains(input.getMouseX(), input.getMouseY()))==true
 		)*/
-		if(!guiMode && !minimapMode && (!EditMode||!editor.Area.contains(input.getMouseX(), input.getMouseY())==true))
+		if(!guiMode && !minimapMode && (!editMode||!editor.Area.contains(input.getMouseX(), input.getMouseY())==true))
 		{
-			if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)&& !EditMode) {
+			if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)&& !editMode) {
 				this.selectMode = true;
 				followGroup = -1;
 				g.setColor(Color.white);
@@ -550,7 +565,7 @@ public class Game extends BasicGame implements Serializable
 			}
 		}
 		gui.draw(g);
-		if(this.EditMode){
+		if(this.editMode){
 			editor.draw(g);
 		}
 		minimap.draw(g);

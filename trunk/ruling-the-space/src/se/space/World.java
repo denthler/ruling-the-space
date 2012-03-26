@@ -390,7 +390,9 @@ public class World implements Serializable {
 			if(object.getType().equals("ship.png") && object.getTeam()==game.getMyTeam()){
 				object.checkLevelUp();
 			}
-			object.update();
+			if(!game.isEditMode()){
+				object.update();
+			}
 
 			//All the player's hunters shoot arrows at the nearest enemy while the Z key is held down
 			//	if(object instanceof Hunter && game.getInput().isKeyDown(Input.KEY_Z)) { //TODO shouldn't check input here
@@ -411,7 +413,7 @@ public class World implements Serializable {
 			}
 		}
 
-		//Additional object to add recived over network
+		// Update network related objects
 		updateNetwork();
 	}
 	public void init(Gui gui) {
@@ -442,8 +444,8 @@ public class World implements Serializable {
 			}
 		}
 		return returnObj;
-
 	}
+
 	public void render(Graphics g) {
 		for(GameObject object : getGameObjects()) {
 			object.draw(g);
