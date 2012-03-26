@@ -1,4 +1,4 @@
-package se.ruling.space;
+package se.space;
 
 import java.util.HashMap;
 import java.util.Random;
