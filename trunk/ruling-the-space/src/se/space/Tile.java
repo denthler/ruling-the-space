@@ -1,4 +1,4 @@
-package se.ruling.space;
+package se.space;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;

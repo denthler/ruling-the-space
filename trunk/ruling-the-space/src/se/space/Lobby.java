@@ -1,4 +1,4 @@
-package se.ruling.space;
+package se.space;
 
 public class Lobby {
 
