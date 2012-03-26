@@ -2,6 +2,7 @@ package se.space;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -338,6 +339,12 @@ public class World implements Serializable {
 
 		netTime++;
 	}
+	
+	public void moveScreenToUnit(GameObject g){
+		float x = (float)-(g.getxPos()-game.getWorldView().getScreenSize().width/2);
+		float y = (float)-(g.getyPos()-game.getWorldView().getScreenSize().height/2+50);
+		game.getWorldView().setCurrentViewLocation(new Point2D.Float(x,y));
+	}
 
 	/**
 	 * creates a new List containing all elements of {@code original},
@@ -380,6 +387,9 @@ public class World implements Serializable {
 
 		//Update state for all GameObjects
 		for(GameObject object : getGameObjects()) {
+			if(object.getType().equals("ship.png") && object.getTeam()==game.getMyTeam()){
+				object.checkLevelUp();
+			}
 			object.update();
 
 			//All the player's hunters shoot arrows at the nearest enemy while the Z key is held down

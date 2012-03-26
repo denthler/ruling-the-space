@@ -98,7 +98,7 @@ public class TileMap {
 				}
 				//		        load objects
 				while((line = in.readLine())!=null){
-					String[] lineStrings = line.split("��");
+					String[] lineStrings = line.split("\t");
 					Team t=game.grayTeam;
 					if(game.redTeam.getColor().equals(new Color(Integer.decode(lineStrings[3]),Integer.decode(lineStrings[4]),Integer.decode(lineStrings[5])))){
 						t=game.redTeam;
@@ -120,7 +120,7 @@ public class TileMap {
 							speed,t,lineStrings[0].split("/")[1]);	
 					if(lineStrings[0].split("/")[1].equals("spacestation.png")){
 						tempObj.setHealth(2000);
-						tempObj.setDammage(5);
+						tempObj.setDamage(5);
 					}
 					tempObj.setHealth(Integer.decode(lineStrings[6]));
 					world.getGameObjects().add(tempObj);
@@ -194,7 +194,7 @@ public class TileMap {
 
 			String extension = getExtension(f);
 			if (extension != null) {
-				if (extension.equals("xD")) {
+				if (extension.equals("map")) {
 					return true;
 				} else {
 					return false;
@@ -216,7 +216,7 @@ public class TileMap {
 
 		//The description of this filter
 		public String getDescription() {
-			return ".xD";
+			return ".map";
 		}
 	}
 	public void loadMap(){
@@ -259,7 +259,7 @@ public class TileMap {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				file = fc.getSelectedFile();
 				if((filter.getExtension(file)==(null))){
-					file = new File(file.getPath()+".xD");
+					file = new File(file.getPath()+".map");
 				}
 				else{
 					file = new File(file.getPath());
@@ -278,12 +278,12 @@ public class TileMap {
 					bw.write("///\n");
 					for(GameObject obj:world.getGameObjects()){
 						bw.write(obj.getSprite().getResourceReference()
-								+"��"+(int)obj.getxPos()
-								+"��"+(int)obj.getyPos()
-								+"��"+obj.getTeam().getColor().getRed()
-								+"��"+obj.getTeam().getColor().getGreen()
-								+"��"+obj.getTeam().getColor().getBlue()
-								+"��"+obj.getHealth()
+								+"\t"+(int)obj.getxPos()
+								+"\t"+(int)obj.getyPos()
+								+"\t"+obj.getTeam().getColor().getRed()
+								+"\t"+obj.getTeam().getColor().getGreen()
+								+"\t"+obj.getTeam().getColor().getBlue()
+								+"\t"+obj.getHealth()
 								+"\n");
 					}
 					bw.close();

@@ -25,12 +25,13 @@ public class Gui implements Serializable{
 	private HashMap<String,Rectangle> buttons;
 	private Timer t;
 	private Timer update;
+	private Timer updateGold;
 	private int gold;
 	private Image frame;
 	private Image squareFrame;
 	int level;
 	private String health;
-	int dammage;
+	int damage;
 	GameObject currentObject;
 
 
@@ -50,19 +51,23 @@ public class Gui implements Serializable{
 		this.Area=new Rectangle(0, screenSize.height - 150, screenSize.width, 150);
 		buttons = new HashMap<String,Rectangle>();
 		buttons.put("build", new Rectangle((float) (this.screenSize.getWidth()-280), this.screenSize.height-160, 50, 50));
-		update = Timer.createTimer(5000);
+		update = Timer.createTimer(500);
+		updateGold = Timer.createTimer(5000);
 		
 
 	}
 
 	public void draw(Graphics g) {
 		drawMainGui(g);
-		if(update.isDone()){
+		if(updateGold.isDone()){
 			gold=(int)world.getGame().getMyTeam().getGold();
+			updateGold.reset();
+		}
+		if(update.isDone()){
 			update.reset();
 			if(currentObject!=null){
 				level = currentObject.getLevel();
-				dammage = currentObject.getDammage();
+				damage = currentObject.getDamage();
 				health = ""+currentObject.getHealth()+"/"+currentObject.getMaxHealth();
 			}
 			
@@ -154,9 +159,9 @@ public class Gui implements Serializable{
 							currentObject.build(tempObj, 10000);
 							t.reset();
 						}
-						else if(this.currentObject.getType().equals("ship.png")){
-							currentObject.build(currentObject, 5000);
-						}
+//						else if(this.currentObject.getType().equals("ship.png")){
+//							currentObject.build(currentObject, 5000);
+//						}
 					}
 				}
 			}
@@ -171,19 +176,24 @@ public class Gui implements Serializable{
 	}
 	private void drawShipInterface(Graphics g) {
 		// TODO Auto-generated method stub
-		if(this.currentObject.getExp()<100*this.currentObject.getLevel()){
-			g.setColor(Color.red);
-		}
-		else
-			g.setColor(Color.green);
+//		if(this.currentObject.getExp()<100*this.currentObject.getLevel()){
+//			g.setColor(Color.red);
+//		}
+//		else
+//			g.setColor(Color.green);
 		for(Rectangle rct:buttons.values()){
-			g.fill(rct);
-			g.drawImage(Game.objectList.get(Game.IMAGE_PATH +"ship.png"), rct.getX()+5, rct.getY()+5);
+			//g.fill(rct);
+			Image s = this.currentObject.getSprite();
+			Float tmp = s.getRotation();
+			s.setRotation(0);
+			g.drawImage(this.currentObject.getSprite(), rct.getX()+5, rct.getY()+5);
+			s.setRotation(tmp);
+			//g.drawImage(Game.objectList.get(Game.IMAGE_PATH +"ship.png"), rct.getX()+5, rct.getY()+5);
 			g.setColor(Color.yellow);
-			g.drawString("upgrade", rct.getX()-2, rct.getMaxY()+5);
+//			g.drawString("upgrade", rct.getX()-2, rct.getMaxY()+5);
 			
 			g.drawString("Level: "+level, rct.getMaxX()+50, rct.getY());
-			g.drawString("Dammage: "+dammage, rct.getMaxX()+50, rct.getY()+20);
+			g.drawString("Damage: "+damage, rct.getMaxX()+50, rct.getY()+20);
 			g.drawString("Health: "+health, rct.getMaxX()+50, rct.getY()+40);
 			
 		}

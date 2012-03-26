@@ -26,7 +26,7 @@ public class GameObject implements Serializable {
 	private double xPos, yPos;
 	private double moveX,moveY,speed=0;
 	private int exp=0;
-	private int maxHealth=200,health=200,range=400,dammage=1;
+	private int maxHealth=200,health=200,range=400,damage=1;
 	private Image sprite;
 	private World world;
 	private Team team;
@@ -47,6 +47,16 @@ public class GameObject implements Serializable {
 		buildQueue= new LinkedList<GameObject>();
 		setLevel(1);
 	}
+	public void checkLevelUp(){
+		if(this.getExp()>100*this.getLevel()){
+			
+			this.setCurHealth(this.getHealth()+10);
+			this.setMaxHealth(this.getMaxHealth()+10);
+			this.setDamage(this.getDamage()+1);
+			this.setExp(0);
+			this.setLevel(this.getLevel() + 1);
+		}
+	}
 	public void build(GameObject obj,int time){
 		if(type.equals("spacestation.png")){
 			if(this.team.getGold()>200){
@@ -56,14 +66,14 @@ public class GameObject implements Serializable {
 				buildQueue.add(obj);
 			}
 		}
-		else if(type.equals("ship.png")){
-			if(this.getExp()>100*getLevel()){
-				this.setHealth(this.getMaxHealth()+50);
-				this.setDammage(dammage+1);
-				this.setExp(0);
-				this.setLevel(this.getLevel() + 1);
-			}
-		}
+//		else if(type.equals("ship.png")){
+//			if(this.getExp()>100*getLevel()){
+//				this.setHealth(this.getMaxHealth()+50);
+//				this.setDammage(dammage+1);
+//				this.setExp(0);
+//				this.setLevel(this.getLevel() + 1);
+//			}
+//		}
 	}
 	public GameObject(World tempWorld,int x, int y, Image img,int tempSpeed,Team tempTeam,String tempType){
 		this(x, y, img);
@@ -188,7 +198,7 @@ public class GameObject implements Serializable {
 			for(GameObject obj:world.getGameObjects()){
 				if(area.contains(obj.getX(), obj.getY())&&this.getTeam()!=obj.getTeam()){
 					if(!obj.getType().equals("earth.png")){
-						obj.dammage(dammage);
+						obj.dammage(damage);
 						setExp(getExp() + 1);
 						int randomOffset = (int) (Math.random()*obj.getSprite().getWidth());
 						int randomOffset2 = (int) (Math.random()*obj.getSprite().getWidth());
@@ -239,6 +249,9 @@ public class GameObject implements Serializable {
 	public Team getTeam() {
 		return team;
 	}
+	public void setCurHealth(int health){
+		this.health = health;
+	}
 	public void setHealth(int health) {
 		this.setMaxHealth(health);
 		this.health = health;
@@ -265,11 +278,11 @@ public class GameObject implements Serializable {
 	public int getExp() {
 		return exp;
 	}
-	public void setDammage(int dammage) {
-		this.dammage = dammage;
+	public void setDamage(int damage) {
+		this.damage = damage;
 	}
-	public int getDammage() {
-		return dammage;
+	public int getDamage() {
+		return damage;
 	}
 	public void setMoveX(double moveX) {
 		this.moveX = moveX;
@@ -331,7 +344,7 @@ public class GameObject implements Serializable {
 		net.add(getMaxHealth());
 		net.add(health);
 		net.add(range);
-		net.add(dammage);
+		net.add(damage);
 		//net.add(sprite);
 		//net.add(world);
 		net.add(team);
