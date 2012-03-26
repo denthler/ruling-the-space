@@ -35,7 +35,15 @@ public class Minimap {
 		scaleY = world.getHeight() / (float)minimapHeight;
 		Area = new Rectangle(minimapX, minimapY, minimapWidth, minimapHeight);
 	}
-
+	public boolean contains(float xp,float yp){
+		float maxX = Area.getMaxX();
+		float maxY = Area.getMaxY();
+		float minX = Area.getMinX();
+		float minY = Area.getMinY();
+		if(xp>=minX && xp<=maxX && yp>=minY && yp<=maxY)
+			return true;
+		return false;
+	}
 	public int getMinimapX() {
 		return minimapX;
 	}
