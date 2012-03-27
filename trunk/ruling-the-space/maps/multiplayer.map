@@ -109,8 +109,7 @@ images/groundTile2.png images/groundTile3.png images/groundTile3.png images/grou
 
 
 ///
-images/spacestation.png	148	171	255	0	0	2000
-images/spacestation.png	1555	246	0	0	255	2000
+images/spacestation.png	1555	246	0	0	255	1998
 images/spacestation.png	533	1528	127	127	127	2000
 images/ship.png	462	1358	127	127	127	200
 images/ship.png	510	1358	127	127	127	200
@@ -126,4 +125,5 @@ images/ship.png	1332	357	0	0	255	200
 images/ship.png	1331	396	0	0	255	200
 images/earth.png	1732	115	0	0	255	200
 images/earth.png	357	1685	127	127	127	200
-images/earth.png	638	164	255	0	0	200
+images/earth.png	143	121	255	0	0	200
+images/spacestation.png	267	199	255	0	0	2000

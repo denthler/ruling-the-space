@@ -198,7 +198,7 @@ public class Game extends BasicGame implements Serializable
 			}
 		}
 		boolean lcont = false;
-		if(!editMode && input.isKeyDown(Input.KEY_LCONTROL)){
+		if(!editMode && input.isKeyDown(Input.KEY_LCONTROL) && !menu.lobbyIsVisible()){
 			lcont = true;
 			for(int i=0;i<numberKeys.length;i++){
 				if(input.isKeyPressed(numberKeys[i])){
@@ -214,7 +214,7 @@ public class Game extends BasicGame implements Serializable
 				}
 			}
 		}
-		if(!editMode && !lcont){
+		if(!editMode && !lcont && !menu.lobbyIsVisible()){
 			for(int i=0;i<numberKeys.length;i++){
 				if(input.isKeyPressed(numberKeys[i])){
 					if(hotkeyTimer.isDone() || i!=lastUsedGroup){
@@ -275,6 +275,51 @@ public class Game extends BasicGame implements Serializable
 				paused=!paused;
 				t.reset();
 			}
+		}
+		
+		if(menu.lobbyIsVisible() && menu.joinIsVisible()){
+			//org.newdawn.slick.KeyListener e;
+			//try{
+			boolean added = false;
+			//try {
+				//int sleepTime = 150;
+				input.disableKeyRepeat();
+				for(int i = 0; i < 10; i++){
+					if(input.isKeyPressed(i) && !added){
+						menu.addIp("" + Input.getKeyName(i));
+						added = true;
+						//Thread.sleep(sleepTime);
+						break;
+					}
+				}
+				for(int i = 10; i < 200; i++){
+					if(input.isKeyPressed(i) && !added){
+						if(Input.getKeyName(i).equals("PERIOD")){
+							menu.addIp(".");
+							//Thread.sleep(sleepTime);
+						}
+						else if(Input.getKeyName(i).equals("MINUS")){
+							menu.addIp("-");
+							//Thread.sleep(sleepTime);
+						}
+						else if(Input.getKeyName(i).equals("RETURN")){
+							menu.join();
+							//Thread.sleep(sleepTime);
+						}
+						else{
+							menu.addIp("" + Input.getKeyName(i));
+							//Thread.sleep(sleepTime);
+						}
+						added = true;
+						break;
+					}
+				}
+				input.enableKeyRepeat();
+
+			///} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+			//	e.printStackTrace();
+			//}
 		}
 
 
@@ -500,50 +545,7 @@ public class Game extends BasicGame implements Serializable
 			dragSelect.y=mouseWorldY;
 		}
 
-		if(menu.lobbyIsVisible() && menu.joinIsVisible()){
-			//org.newdawn.slick.KeyListener e;
-			//try{
-			boolean added = false;
-			//try {
-				//int sleepTime = 150;
-				input.disableKeyRepeat();
-				for(int i = 0; i < 10; i++){
-					if(input.isKeyPressed(i) && !added){
-						menu.addIp("" + Input.getKeyName(i));
-						added = true;
-						//Thread.sleep(sleepTime);
-						break;
-					}
-				}
-				for(int i = 10; i < 200; i++){
-					if(input.isKeyPressed(i) && !added){
-						if(Input.getKeyName(i).equals("PERIOD")){
-							menu.addIp(".");
-							//Thread.sleep(sleepTime);
-						}
-						else if(Input.getKeyName(i).equals("MINUS")){
-							menu.addIp("-");
-							//Thread.sleep(sleepTime);
-						}
-						else if(Input.getKeyName(i).equals("RETURN")){
-							menu.join();
-							//Thread.sleep(sleepTime);
-						}
-						else{
-							menu.addIp("" + Input.getKeyName(i));
-							//Thread.sleep(sleepTime);
-						}
-						added = true;
-						break;
-					}
-				}
-				input.enableKeyRepeat();
-
-			///} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-			//	e.printStackTrace();
-			//}
-		}
+		
 
 		//Draw GUI and rings around selected objects
 		g.resetTransform();
