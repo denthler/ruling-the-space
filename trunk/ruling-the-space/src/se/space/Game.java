@@ -573,7 +573,23 @@ public class Game extends BasicGame implements Serializable
 										dragSelect.y>mouseWorldY?dragSelect.y-mouseWorldY:mouseWorldY-dragSelect.y);
 				g.draw(rct);
 
-				setSelectedObjects(gameWorld.getMyUnits(rct));
+				if(input.isKeyDown(Input.KEY_LSHIFT) && selectedObjects!=null){
+					for(GameObject o:gameWorld.getMyUnits(rct)){
+						if(!selectedObjects.contains(o)){
+							selectedObjects.add(o);
+						}
+					}
+				}
+				else if(input.isKeyDown(Input.KEY_LCONTROL) && selectedObjects!=null){
+					for(GameObject o:gameWorld.getMyUnits(rct)){
+						if(selectedObjects.contains(o)){
+							selectedObjects.remove(o);
+						}
+					}
+				}
+				else{
+					setSelectedObjects(gameWorld.getMyUnits(rct));
+				}
 			}
 			else{
 				dragSelect.x=mouseWorldX;
