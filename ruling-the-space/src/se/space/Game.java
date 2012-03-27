@@ -74,6 +74,8 @@ public class Game extends BasicGame implements Serializable
 	private int followGroup;
 	private int lastUsedGroup;
 	private Timer t;
+	private Timer doubleClickTimer;
+	private boolean doubleClick;
 	private MainMenu menu;
 	private Lobby lobby;
 	private boolean isFullscreen;
@@ -109,7 +111,8 @@ public class Game extends BasicGame implements Serializable
 		grayTeam=new Team(Color.gray);
 		myTeam=redTeam;
 		t= Timer.createTimer(1000);
-		isFullscreen=true;
+		doubleClickTimer = Timer.createTimer(1000);
+		isFullscreen=false;
 		isHost=true;
 		for(int i=0;i<10;i++){
 			this.numberGroup.add(null);
@@ -523,7 +526,44 @@ public class Game extends BasicGame implements Serializable
 		)*/
 		if(!guiMode && !minimapMode && (!editMode||!editor.Area.contains(input.getMouseX(), input.getMouseY())==true))
 		{
-			if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)&& !editMode) {
+			if(input.isMousePressed(Input.MOUSE_LEFT_BUTTON)){
+				if(doubleClickTimer.isDone()){
+					doubleClickTimer.reset();
+					doubleClick = false;
+				}
+				else if(selectedObjects.size()>0){
+					String type = null;
+					for(GameObject o:selectedObjects){
+						if(type==null){
+							type = o.getType();
+						}
+						else{
+							if(!type.equals(o.getType())){
+								type = null;
+								break;
+							}
+						}
+					}
+					if(type!=null){
+						doubleClick = true;
+						//System.out.println(dragSelect.x+"_"+dragSelect.y);
+						Rectangle r = getWorldView().getViewLocationRect();
+						float y  = screenSize.height-r.getMaxY();
+						float x = screenSize.width-r.getMaxX();
+						Rectangle r2 = new Rectangle(x,y,screenSize.width,screenSize.height);
+						//System.out.println(r.getMaxX()+"_"+r.getMinX()+":"+r.getMaxY()+"_"+r.getMinY());
+						List<GameObject> go = gameWorld.getMyUnits(r2);
+						ArrayList<GameObject> objectsToSelect = new ArrayList<GameObject>();
+						for(GameObject o:go){
+							if(type.equals(o.getType())){
+								objectsToSelect.add(o);
+							}
+						}
+						setSelectedObjects(objectsToSelect);
+					}
+				}
+			}
+			if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)&& !editMode && !doubleClick) {
 				this.selectMode = true;
 				followGroup = -1;
 				g.setColor(Color.white);
