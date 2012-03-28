@@ -20,7 +20,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
-
+import se.space.spaceships.*;
 
 public class TileMap {
 	private Game 							game;
@@ -66,9 +66,10 @@ public class TileMap {
 
 	}
 	private void loadThis(String tempMapFile) {
-		if(world.getGameObjects()!=null)
-		for(GameObject obj:world.getGameObjects()){
-			obj.setHealth(0);
+		if(world.getGameObjects()!=null){
+			for(GameObject obj:world.getGameObjects()){
+				obj.setHealth(0);
+			}
 		}
 		BufferedReader in = null;
 		try{
@@ -114,15 +115,28 @@ public class TileMap {
 					else{
 						speed=1;
 					}
-					GameObject tempObj = new GameObject(world,
+					int x = Integer.decode(lineStrings[1]);
+					int y = Integer.decode(lineStrings[2]);
+					Image img = new Image(lineStrings[0]);
+					String type = lineStrings[0].split("/")[1];
+					int health = Integer.decode(lineStrings[6]);
+					GameObject tempObj;
+					if(type.equals("ship.png")){
+						tempObj = new StandardShip(world,x,y,img,speed,t,type);
+						tempObj.setHealth(health);
+					}
+					else{
+						tempObj = new GameObject(world,
 							Integer.decode(lineStrings[1]),Integer.decode(lineStrings[2]),
 							new Image(lineStrings[0]),
 							speed,t,lineStrings[0].split("/")[1]);	
-					if(lineStrings[0].split("/")[1].equals("spacestation.png")){
-						tempObj.setHealth(2000);
-						tempObj.setDamage(5);
+						tempObj.setHealth(health);
+						if(lineStrings[0].split("/")[1].equals("spacestation.png")){
+							tempObj.setHealth(2000);
+							tempObj.setDamage(5);
+						}
 					}
-					tempObj.setHealth(Integer.decode(lineStrings[6]));
+					
 					world.getGameObjects().add(tempObj);
 
 
@@ -135,7 +149,13 @@ public class TileMap {
 			}
 		}
 		catch(IOException e){}
-
+		
+		game.blueTeam.setGold(0);
+		game.redTeam.setGold(0);
+		game.grayTeam.setGold(0);
+		game.setSelectedObjects(null);
+		game.setSelectMode(false);
+		game.setDoubleClick(false);
 	}
 	public Tile[][] getTiles(){
 		return list;
@@ -220,8 +240,8 @@ public class TileMap {
 		}
 	}
 	public void loadMap(){
-		JFrame test = new JFrame();
-		test.setVisible(true);
+		//JFrame test = new JFrame();
+		//test.setVisible(true);
 		//test.setUndecorated(true);
 		BufferedWriter bw = null;
 		File file = null;
@@ -229,12 +249,14 @@ public class TileMap {
 		JFileChooser fc = new JFileChooser("maps");
 		fc.setAcceptAllFileFilterUsed(false);
 		fc.addChoosableFileFilter(filter);
-		int returnVal = fc.showOpenDialog(test);
+		int returnVal = fc.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			file = fc.getSelectedFile();
 			loadThis(file.getPath());
+			
 		}
-		test.setVisible(false);
+		fc = null;
+		//test.setVisible(false);
 	}
 	private class SaveGame extends Thread{
 		Tile[][] tileList;
