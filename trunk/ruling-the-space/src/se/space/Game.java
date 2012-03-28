@@ -1,8 +1,10 @@
 package se.space;
+import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Robot;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.Serializable;
@@ -76,6 +78,7 @@ public class Game extends BasicGame implements Serializable
 	private Timer t;
 	private Timer doubleClickTimer;
 	private boolean doubleClick;
+	
 	private MainMenu menu;
 	private Lobby lobby;
 	private boolean isFullscreen;
@@ -134,6 +137,12 @@ public class Game extends BasicGame implements Serializable
 
 		gui = new Gui(gameWorld, screenSize);
 		editor = new Editor(gameWorld, screenSize,this);
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		gameWorld.init(gui);
 		gameWorld.update(0);
 		//lobby = new Lobby(this,gameWorld,getWorldView());
@@ -265,9 +274,11 @@ public class Game extends BasicGame implements Serializable
 			}
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_S)&&editMode){
+			robot.keyRelease(KeyEvent.VK_CONTROL);
 			tiles.saveMap();
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_O)){
+			robot.keyRelease(KeyEvent.VK_CONTROL);
 			tiles.loadMap();
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_E)){
@@ -390,6 +401,18 @@ public class Game extends BasicGame implements Serializable
 			gameWorld.update(delta);
 			updateCount++;
 		}
+	}
+	public boolean isDoubleClick() {
+		return doubleClick;
+	}
+	public void setDoubleClick(boolean doubleClick) {
+		this.doubleClick = doubleClick;
+	}
+	public boolean isSelectMode() {
+		return selectMode;
+	}
+	public void setSelectMode(boolean selectMode) {
+		this.selectMode = selectMode;
 	}
 	public boolean isEditMode() {
 		return editMode;
@@ -574,6 +597,7 @@ public class Game extends BasicGame implements Serializable
 				g.draw(rct);
 
 				if(input.isKeyDown(Input.KEY_LSHIFT) && selectedObjects!=null){
+					System.out.println("1!!!");
 					for(GameObject o:gameWorld.getMyUnits(rct)){
 						if(!selectedObjects.contains(o)){
 							selectedObjects.add(o);
@@ -581,6 +605,7 @@ public class Game extends BasicGame implements Serializable
 					}
 				}
 				else if(input.isKeyDown(Input.KEY_LCONTROL) && selectedObjects!=null){
+					System.out.println("2!!!");
 					for(GameObject o:gameWorld.getMyUnits(rct)){
 						if(selectedObjects.contains(o)){
 							selectedObjects.remove(o);
@@ -588,6 +613,7 @@ public class Game extends BasicGame implements Serializable
 					}
 				}
 				else{
+					System.out.println("3!!!");
 					setSelectedObjects(gameWorld.getMyUnits(rct));
 				}
 			}
