@@ -122,8 +122,8 @@ public class Game extends BasicGame implements Serializable
 		}
 		container.setMinimumLogicUpdateInterval(20);
 		container.setMaximumLogicUpdateInterval(20);
-		container.setUpdateOnlyWhenVisible(false);
-		container.setAlwaysRender(true);
+		container.setUpdateOnlyWhenVisible(true);
+		container.setAlwaysRender(false);
 		container.setSmoothDeltas(true);
 		container.setFullscreen(isFullscreen);
 		
@@ -597,7 +597,6 @@ public class Game extends BasicGame implements Serializable
 				g.draw(rct);
 
 				if(input.isKeyDown(Input.KEY_LSHIFT) && selectedObjects!=null){
-					System.out.println("1!!!");
 					for(GameObject o:gameWorld.getMyUnits(rct)){
 						if(!selectedObjects.contains(o)){
 							selectedObjects.add(o);
@@ -605,7 +604,6 @@ public class Game extends BasicGame implements Serializable
 					}
 				}
 				else if(input.isKeyDown(Input.KEY_LCONTROL) && selectedObjects!=null){
-					System.out.println("2!!!");
 					for(GameObject o:gameWorld.getMyUnits(rct)){
 						if(selectedObjects.contains(o)){
 							selectedObjects.remove(o);
@@ -613,7 +611,6 @@ public class Game extends BasicGame implements Serializable
 					}
 				}
 				else{
-					System.out.println("3!!!");
 					setSelectedObjects(gameWorld.getMyUnits(rct));
 				}
 			}
