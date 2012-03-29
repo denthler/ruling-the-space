@@ -218,7 +218,7 @@ public class World implements Serializable {
 									else if(teamcolorC.equals("GRAY")){
 										gObj.setTeam(game.grayTeam);
 									}
-									updateingteam = 3; //B
+									updateingteam = 3; //C
 								}
 								//System.out.println("Speed: "+speed + " Angle:" +angle);
 								//								if(team.getColor().equals(Color.red)){
