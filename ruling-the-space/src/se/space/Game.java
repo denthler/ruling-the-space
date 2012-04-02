@@ -27,6 +27,9 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 
+import se.space.spaceships.Destroyer;
+import se.space.spaceships.StandardShip;
+
 public class Game extends BasicGame implements Serializable
 {
 
@@ -68,7 +71,8 @@ public class Game extends BasicGame implements Serializable
 	private int frameCount = 0; 
 	private int updateCount = 0;
 	private List<GameObject> selectedObjects;
-	static public HashMap<String,Image> objectList;
+	//static public HashMap<String,Image> objectImageList;
+	static public HashMap<String,GameObject> objectList;
 	private List<List<GameObject>>numberGroup= new ArrayList<List<GameObject>>();
 	private int[] numberKeys = {Input.KEY_0,Input.KEY_1,Input.KEY_2,Input.KEY_3,
 			Input.KEY_4,Input.KEY_5,Input.KEY_6,Input.KEY_7,Input.KEY_8,Input.KEY_9};
@@ -100,15 +104,25 @@ public class Game extends BasicGame implements Serializable
 	@Override
 	public void init(GameContainer container) throws SlickException {
 		container.setShowFPS(false);
-		objectList = new HashMap<String,Image>();
-		try {
-			objectList.put(Game.IMAGE_PATH + "ship.png", new Image(Game.IMAGE_PATH + "ship.png"));
-			objectList.put(Game.IMAGE_PATH + "earth.png", new Image(Game.IMAGE_PATH + "earth.png"));
-			objectList.put(Game.IMAGE_PATH + "spacestation.png", new Image(Game.IMAGE_PATH + "spacestation.png"));
-		} catch (SlickException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		objectList = new HashMap<String,GameObject>();
+		objectList.put("ship",new StandardShip(null,-1,-1,
+			Game.IMAGE_PATH+"ship.png",1,null,"ship"));
+		objectList.put("destroyer",new Destroyer(null,-1,-1,
+				Game.IMAGE_PATH+"destroyer.png",1,null,"destroyer"));
+		objectList.put("earth",new Destroyer(null,-1,-1,
+				Game.IMAGE_PATH+"earth.png",1,null,"earth"));
+		objectList.put("spacestation",new Destroyer(null,-1,-1,
+				Game.IMAGE_PATH+"spacestation.png",1,null,"spacestation"));
+		
+			
+		
+	/*	objectImageList = new HashMap<String,Image>();
+		for(String s:objectList.keySet()) {
+			objectImageList.put("ship.png", new Image(Game.IMAGE_PATH + "ship.png"));
+			objectImageList.put("destroyer.png", new Image(Game.IMAGE_PATH + "destroyer.png"));
+			objectImageList.put("earth.png", new Image(Game.IMAGE_PATH + "earth.png"));
+			objectImageList.put("spacestation.png", new Image(Game.IMAGE_PATH + "spacestation.png"));
+		}*/
 		blueTeam=new Team(Color.blue);
 		redTeam=new Team(Color.red);
 		grayTeam=new Team(Color.gray);
@@ -475,7 +489,7 @@ public class Game extends BasicGame implements Serializable
 							speed=1;
 						}
 						GameObject tempObj = new GameObject(this.gameWorld,mouseWorldX, mouseWorldY,
-								new Image(Game.IMAGE_PATH + editor.getSelectedType()),
+								Game.IMAGE_PATH + editor.getSelectedType(),
 								speed,editor.getSelectedTeam(),editor.getSelectedType());
 						if(editor.getSelectedType().equals("spacestation.png")){
 							tempObj.setHealth(2000);
@@ -640,11 +654,11 @@ public class Game extends BasicGame implements Serializable
 				g.drawOval(obj.getX()-5+getWorldView().getCurrentViewLocation().x, obj.getY()-5+getWorldView().getCurrentViewLocation().y, obj.getSprite().getWidth()+10, obj.getSprite().getHeight()+10);
 			}
 		}
-		if(input.isKeyPressed(Input.KEY_DELETE)){
+		/*if(input.isKeyPressed(Input.KEY_DELETE)){
 			for(GameObject obj:getSelectedObjects()){
 				obj.setHealth(0);
 			}
-		}
+		}*/
 		gui.draw(g);
 		if(this.editMode){
 			editor.draw(g);

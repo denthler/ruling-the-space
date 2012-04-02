@@ -177,55 +177,51 @@ public class World implements Serializable {
 							String type = ((String) list.get(12));
 
 							GameObject gObj = null;
-							try {
-								gObj = new GameObject(game.getGameworld(), (int) x, (int) y, new Image(Game.IMAGE_PATH + type), (int) speed, team, type);
-								gObj.setAngle((int) angle);
-								gObj.setMoveX(movex);
-								gObj.setMoveY(movey);
+							gObj = new GameObject(game.getGameworld(), (int) x, (int) y, Game.IMAGE_PATH + type, (int) speed, team, type);
+							gObj.setAngle((int) angle);
+							gObj.setMoveX(movex);
+							gObj.setMoveY(movey);
 
 
-								if(team.getColor().equals(colorA)){
-									if(teamcolorA.equals("RED")){
-										gObj.setTeam(game.redTeam);
-									}
-									else if(teamcolorA.equals("BLUE")){
-										gObj.setTeam(game.blueTeam);
-									}
-									else if(teamcolorA.equals("GRAY")){
-										gObj.setTeam(game.grayTeam);
-									}
-									updateingteam = 1; //A
+							if(team.getColor().equals(colorA)){
+								if(teamcolorA.equals("RED")){
+									gObj.setTeam(game.redTeam);
 								}
-								else if(team.getColor().equals(colorB)){
-									if(teamcolorB.equals("RED")){
-										gObj.setTeam(game.redTeam);
-									}
-									else if(teamcolorB.equals("BLUE")){
-										gObj.setTeam(game.blueTeam);
-									}
-									else if(teamcolorB.equals("GRAY")){
-										gObj.setTeam(game.grayTeam);
-									}
-									updateingteam = 2; //B
+								else if(teamcolorA.equals("BLUE")){
+									gObj.setTeam(game.blueTeam);
 								}
-								else if(team.getColor().equals(colorC)){
-									if(teamcolorC.equals("RED")){
-										gObj.setTeam(game.redTeam);
-									}
-									else if(teamcolorC.equals("BLUE")){
-										gObj.setTeam(game.blueTeam);
-									}
-									else if(teamcolorC.equals("GRAY")){
-										gObj.setTeam(game.grayTeam);
-									}
-									updateingteam = 3; //C
+								else if(teamcolorA.equals("GRAY")){
+									gObj.setTeam(game.grayTeam);
 								}
+								updateingteam = 1; //A
+							}
+							else if(team.getColor().equals(colorB)){
+								if(teamcolorB.equals("RED")){
+									gObj.setTeam(game.redTeam);
+								}
+								else if(teamcolorB.equals("BLUE")){
+									gObj.setTeam(game.blueTeam);
+								}
+								else if(teamcolorB.equals("GRAY")){
+									gObj.setTeam(game.grayTeam);
+								}
+								updateingteam = 2; //B
+							}
+							else if(team.getColor().equals(colorC)){
+								if(teamcolorC.equals("RED")){
+									gObj.setTeam(game.redTeam);
+								}
+								else if(teamcolorC.equals("BLUE")){
+									gObj.setTeam(game.blueTeam);
+								}
+								else if(teamcolorC.equals("GRAY")){
+									gObj.setTeam(game.grayTeam);
+								}
+								updateingteam = 3; //C
 								//System.out.println("Speed: "+speed + " Angle:" +angle);
 								//								if(team.getColor().equals(Color.red)){
 								//									gObj.setTeam(game.redTeam);
 								//								}
-							} catch (SlickException e) {
-								e.printStackTrace();
 							}
 							if(gObj != null){
 								if(updateingteam == 1 && gObj.getTeam().getColor().equals(colorA)){
@@ -387,21 +383,12 @@ public class World implements Serializable {
 
 		//Update state for all GameObjects
 		for(GameObject object : getGameObjects()) {
-			if(object.getType().equals("ship.png") && object.getTeam()==game.getMyTeam()){
+			if(object.isShip() && object.getTeam()==game.getMyTeam()){
 				object.checkLevelUp();
 			}
 			if(!game.isEditMode()){
 				object.update();
 			}
-
-			//All the player's hunters shoot arrows at the nearest enemy while the Z key is held down
-			//	if(object instanceof Hunter && game.getInput().isKeyDown(Input.KEY_Z)) { //TODO shouldn't check input here
-			//		Hunter hunter = (Hunter)object;
-			//		ControllableObject enemy = hunter.getClosest(ControllableObject.class, false);
-			//		if(enemy != null && hunter.getTeam() == playerTeam) {
-			//			hunter.shootArrowAt(enemy);
-			//		}
-			//	}
 		}
 		//Remove dead objects from the game
 		Iterator<GameObject> it = getGameObjects().iterator();
