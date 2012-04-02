@@ -1,5 +1,6 @@
 package se.space;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.awt.geom.Point2D;
@@ -20,6 +21,8 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
+
+import se.space.buildings.*;
 import se.space.spaceships.*;
 
 public class TileMap {
@@ -68,9 +71,11 @@ public class TileMap {
 	private void loadThis(String tempMapFile) {
 		if(world.getGameObjects()!=null){
 			for(GameObject obj:world.getGameObjects()){
-				obj.setHealth(0);
+				obj.health=0;
 			}
 		}
+		world.setGameObjects(new ArrayList<GameObject>());
+		//world.setObjectsToAdd(new ArrayList<GameObject>());
 		BufferedReader in = null;
 		try{
 			in = new BufferedReader(new FileReader(""+tempMapFile));
@@ -117,30 +122,26 @@ public class TileMap {
 					}
 					int x = Integer.decode(lineStrings[1]);
 					int y = Integer.decode(lineStrings[2]);
-					Image img = new Image(lineStrings[0]);
+					String imgPath = lineStrings[0];
 					String type = lineStrings[0].split("/")[1];
 					int health = Integer.decode(lineStrings[6]);
-					GameObject tempObj;
+					GameObject tempObj = null;
 					if(type.equals("ship.png")){
-						tempObj = new StandardShip(world,x,y,img,speed,t,type);
+						tempObj = new StandardShip(world,x,y,imgPath,speed,t,type);
 						tempObj.setHealth(health);
-					}
-					else{
-						tempObj = new GameObject(world,
-							Integer.decode(lineStrings[1]),Integer.decode(lineStrings[2]),
-							new Image(lineStrings[0]),
-							speed,t,lineStrings[0].split("/")[1]);	
-						tempObj.setHealth(health);
-						if(lineStrings[0].split("/")[1].equals("spacestation.png")){
-							tempObj.setHealth(2000);
-							tempObj.setDamage(5);
-						}
 					}
 					
-					world.getGameObjects().add(tempObj);
-
-
-
+					else if(type.equals("spacestation.png")){
+						tempObj =  new Spacestation(world,x,y,imgPath,speed,t,type);
+						tempObj.setHealth(health);
+						//tempObj.setDamage(5);
+					}
+					else if(type.equals("earth.png")){
+						tempObj = new Earth(world,x,y,imgPath,speed,t,type);
+					}
+					if(tempObj!=null){
+						world.getGameObjects().add(tempObj);
+					}
 				}
 				g.flush();
 			} catch (SlickException e) {

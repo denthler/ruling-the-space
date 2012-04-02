@@ -52,7 +52,8 @@ public class Editor implements Serializable{
 		
 		xPos=screenSize.width-150+25;
 		yPos=300;
-		for(Image img: Game.objectList.values()){
+		for(GameObject go: Game.objectList.values()){
+			Image img = go.getSprite();
 			buttons.put(img,new Rectangle(xPos-5, yPos-5, img.getWidth()+10, img.getHeight()+10));
 			yPos+=img.getHeight()+20;
 		}
@@ -85,7 +86,8 @@ public class Editor implements Serializable{
 				setType("tile");
 			}
 		}
-		for(Image img: Game.objectList.values()){
+		for(GameObject go: Game.objectList.values()){
+			Image img = go.getSprite();
 			if(buttons.get(img).contains(x, y)){
 				String tempSelectedType[]=img.getResourceReference().split("/");
 				selectedType=tempSelectedType[1];
@@ -135,7 +137,8 @@ public class Editor implements Serializable{
 		xPos=screenSize.width-150+15;
 		count=0;
 		yPos=300;
-		for(Image img: Game.objectList.values()){
+		for(GameObject go: Game.objectList.values()){
+			Image img = go.getSprite();
 			if(img.getResourceReference().equals(Game.IMAGE_PATH+selectedType)){
 				g.setColor(Color.green);
 			}

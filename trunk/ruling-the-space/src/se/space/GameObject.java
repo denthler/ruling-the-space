@@ -23,27 +23,42 @@ public class GameObject implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private double angle=0;
-	private double xPos, yPos;
+	protected double xPos;
+	protected double yPos;
 	private double moveX,moveY,speed=0;
-	private int exp=0;
-	private int maxHealth=200,health=200,range=400,damage=1;
-	private Image sprite;
-	private World world;
-	private Team team;
+	protected int exp=0;
+	private int maxHealth=200;
+	protected int health=200;
+	protected int range=400;
+	protected int price;
+	protected int damage=1;
+	protected Image sprite;
+	protected String imgPath;
+	protected World world;
+	protected Team team;
 	private String type;
-	private Timer buildTimer, captureTimer;
-	private int level;
-	private transient Queue<GameObject> buildQueue;
+	protected Timer buildTimer, captureTimer;
+	protected int level;
+	protected boolean building = false;
+	protected boolean ship = false;
+	protected transient Queue<GameObject> buildQueue;
 	Point fireAt;
 	private boolean alive=true;
 
-	public GameObject(int x, int y, Image img){
+	public GameObject(int x, int y, String imgPath){
+		this.imgPath = imgPath;
+		;
 		setxPos(x);
 		setyPos(y);
 		setMoveX(x);
 		setMoveY(y);
 		setType("earth.png");
-		setSprite(img);
+		try {
+			setSprite(new Image(imgPath));
+		} catch (SlickException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		buildQueue= new LinkedList<GameObject>();
 		setLevel(1);
 	}
@@ -57,26 +72,10 @@ public class GameObject implements Serializable {
 			this.setLevel(this.getLevel() + 1);
 		}
 	}
-	public void build(GameObject obj,int time){
-		if(type.equals("spacestation.png")){
-			if(this.team.getGold()>200){
-				if(buildTimer==null)
-					buildTimer = Timer.createTimer(time);
-				this.team.setGold(this.team.getGold()-200);
-				buildQueue.add(obj);
-			}
-		}
-//		else if(type.equals("ship.png")){
-//			if(this.getExp()>100*getLevel()){
-//				this.setHealth(this.getMaxHealth()+50);
-//				this.setDammage(dammage+1);
-//				this.setExp(0);
-//				this.setLevel(this.getLevel() + 1);
-//			}
-//		}
-	}
-	public GameObject(World tempWorld,int x, int y, Image img,int tempSpeed,Team tempTeam,String tempType){
-		this(x, y, img);
+	public void build(GameObject obj,int time){}
+	
+	public GameObject(World tempWorld,int x, int y, String imgPath,int tempSpeed,Team tempTeam,String tempType){
+		this(x, y, imgPath);
 		setType(tempType);
 		setSpeed(tempSpeed);
 		team=tempTeam;
@@ -102,64 +101,32 @@ public class GameObject implements Serializable {
 		}
 		g.drawImage(getSprite(),(int)getX(),(int)getY());
 		g.setColor(team.getColor());
-		int randomOffset = (int) (Math.random()*getSprite().getWidth());
+		//int randomOffset = (int) (Math.random()*getSprite().getWidth());
 		if(fireAt!=null){
 			g.drawLine(getX()+getSprite().getWidth()/2, getY()+getSprite().getWidth()/2, fireAt.x, fireAt.y);
 		}
 		g.setColor(Color.red);
 		g.fillRect(getX(), getY(), sprite.getWidth(), 4);
 		g.setColor(Color.green);
-		g.fillRect(getX(), getY(), (sprite.getWidth()-(sprite.getWidth()*(getMaxHealth()-health)/getMaxHealth())), 4);
+		if(getMaxHealth()>0)
+			g.fillRect(getX(), getY(), (sprite.getWidth()-(sprite.getWidth()*(getMaxHealth()-health)/getMaxHealth())), 4);
 		g.setColor(Color.yellow);
+		// Draw the bars above the buildings/spaceships
 		if(buildTimer!=null)
 			g.fillRect(getX(), getY()+4, (sprite.getWidth()-(sprite.getWidth()*(10000-buildTimer.getTimeLeft())/10000)), 4);
 		if(captureTimer!=null)
 			g.fillRect(getX(), getY()+4, (sprite.getWidth()-(sprite.getWidth()*(20000-captureTimer.getTimeLeft())/20000)), 4);
-		if(this.getType().equals("ship.png")){
-			g.fillRect(getX(), getY()+4, (sprite.getWidth()-(sprite.getWidth()*(100*level-exp)/(100*level))), 4);
-		}
+			
 		if(!this.buildQueue.isEmpty()){
 			g.drawString(""+this.buildQueue.size(), getX(), getY()+20);
 		}
 		g.setColor(Color.yellow);
-		if(this.type.equals("ship.png"))
-			g.fillRect((float)xPos-sprite.getWidth()/2, (float)yPos+sprite.getHeight()/2-level, 5, -level);
+		//if(this.type.equals("ship.png"))
+		
 	}
 	public void update() {
 		Rectangle area = new Rectangle(this.getX()-range/2,this.getY()-range/2,range,range);
-		if(this.getType().equals("earth.png")){
-			List<GameObject> objList = world.getAllUnits(area);
-			objList.remove(this);
-			boolean capture = false;
-			Team captureTeam = this.getTeam();
-			for(GameObject obj:objList){
-				if(area.contains(obj.getX(), obj.getY())){
-					if(!obj.getType().equals("earth.png")){
-						if(!obj.getTeam().equals(this.getTeam())){
-							capture=true;
-							captureTeam=obj.getTeam();
-						}
-						else{
-							capture=false;
-							break;
-						}
-					}
-				}
-			}
-			if(capture){
-				if(captureTimer==null){
-					captureTimer = Timer.createTimer(20000);
-				}
-				if(captureTimer.isDone()){
-					captureTimer=null;
-					this.setTeam(captureTeam);
-				}
-			}
-			else{
-				captureTimer=null;
-			}
-			this.team.setGold(this.team.getGold()+0.1);
-		}
+
 		if(buildTimer!=null&&buildTimer.isDone()){
 			World.addObject(buildQueue.remove());
 			buildTimer.reset();
@@ -168,17 +135,6 @@ public class GameObject implements Serializable {
 			}
 		}
 
-		/*NetworkClient n;
-		try {
-			n = new NetworkClient(new Socket("localhost", portNr), "UPDATE");
-			n.getResponse();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 		if(getMoveX()!=getxPos()||getMoveY()!=getyPos()){
 			if(Math.sqrt(Math.abs(Math.pow(getMoveX()-getxPos(), 2)+Math.pow(getMoveY()-getyPos(), 2)))>5){
 				angle=Math.atan((getyPos()-getMoveY())/(getxPos()-getMoveX()));
@@ -194,26 +150,26 @@ public class GameObject implements Serializable {
 		}
 		fireAt=null;
 		//		if(world.getGameObjects()!=null)
-		if(!getType().equals("earth.png"))
-			for(GameObject obj:world.getGameObjects()){
-				if(area.contains(obj.getX(), obj.getY())&&this.getTeam()!=obj.getTeam()){
-					if(!obj.getType().equals("earth.png")){
-						obj.dammage(damage);
-						setExp(getExp() + 1);
-						int randomOffset = (int) (Math.random()*obj.getSprite().getWidth());
-						int randomOffset2 = (int) (Math.random()*obj.getSprite().getWidth());
-						fireAt= new Point(obj.getX()+randomOffset,obj.getY()+randomOffset2);
-						break;
-					}
+	//	if(!getType().equals("earth.png"))
+		for(GameObject obj:world.getGameObjects()){
+			if(area.contains(obj.getX(), obj.getY())&&this.getTeam()!=obj.getTeam()){
+				if(!obj.getType().equals("earth.png")){
+					obj.damage(damage);
+					setExp(getExp() + 1);
+					int randomOffset = (int) (Math.random()*obj.getSprite().getWidth());
+					int randomOffset2 = (int) (Math.random()*obj.getSprite().getWidth());
+					fireAt= new Point(obj.getX()+randomOffset,obj.getY()+randomOffset2);
+					break;
 				}
-
 			}
+
+		}
 		if(getHealth()<=0){
 			alive=false;
 		}
 
 	}
-	public void dammage(int dmg){
+	public void damage(int dmg){
 		setExp(getExp() + 1);
 		int random=(int) (Math.random()*100);
 		if(random>20){
@@ -252,6 +208,12 @@ public class GameObject implements Serializable {
 	public Team getTeam() {
 		return team;
 	}
+	public boolean isShip() {
+		return ship;
+	}
+	public void setShip(boolean ship) {
+		this.ship = ship;
+	}
 	public void setCurHealth(int health){
 		this.health = health;
 	}
@@ -267,6 +229,18 @@ public class GameObject implements Serializable {
 	}
 	public Image getSprite() {
 		return sprite;
+	}
+	public int getPrice(){
+		return this.price;
+	}
+	public void setPrice(int p){
+		this.price = p;
+	}
+	public boolean isBuilding() {
+		return building;
+	}
+	public void setBuilding(boolean building) {
+		this.building = building;
 	}
 	public void setType(String type) {
 		this.type = type;
@@ -321,22 +295,7 @@ public class GameObject implements Serializable {
 	}
 
 	public List<Object> getNetGameObject(){
-		/*private double angle=0;
-		private double xPos, yPos;
-		private double moveX,moveY,speed=0;
-		private int exp=0;
-		private int maxHealth=200,health=200,range=400,dammage=1;
-		private Image sprite;
-		private World world;
-		private Team team;
-		private String type;
-		private Timer buildTimer;
-		private transient Queue<GameObject> buildQueue;
-		Point fireAt;
-		private boolean alive=true;*/
-
 		List<Object> net = new	ArrayList<Object>();
-		//String[] s;
 		net.add(angle);
 		net.add(xPos);
 		net.add(yPos);
@@ -348,15 +307,10 @@ public class GameObject implements Serializable {
 		net.add(health);
 		net.add(range);
 		net.add(damage);
-		//net.add(sprite);
-		//net.add(world);
 		net.add(team);
 		net.add(type);
-		//net.add(buildTimer);
-		//net.add(buildQueue);
 		net.add(fireAt);
 		net.add(alive);
-
 		return net;
 	}
 	public void setLevel(int level) {
@@ -374,5 +328,10 @@ public class GameObject implements Serializable {
 	public void setAngle(int a){
 		angle = a;
 	}
-
+	public void printValues(){
+	//	System.out.println(defDamage+"-"+defHealth+"-"+defPrice);
+	}
+	public void drawBuildInterface(Graphics g,
+			HashMap<String, Rectangle> buttons) {}
+	public void drawShipInterface(Graphics g, HashMap<String, Rectangle> buttons, float d, float e) {}
 }

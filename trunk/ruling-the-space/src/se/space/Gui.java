@@ -11,6 +11,9 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 
+import se.space.spaceships.Destroyer;
+import se.space.spaceships.StandardShip;
+
 /**
  * Displays the game's GUI
  */
@@ -50,7 +53,8 @@ public class Gui implements Serializable{
 		statusTextTimer = Timer.createTimer(3000);
 		this.Area=new Rectangle(0, screenSize.height - 150, screenSize.width, 150);
 		buttons = new HashMap<String,Rectangle>();
-		buttons.put("build", new Rectangle((float) (this.screenSize.getWidth()-280), this.screenSize.height-160, 50, 50));
+		buttons.put("ship", new Rectangle((float) (this.screenSize.getWidth()-280), this.screenSize.height-160, 50, 50));
+		buttons.put("destroyer", new Rectangle((float) (this.screenSize.getWidth()-200), this.screenSize.height-160, 50, 50));
 		update = Timer.createTimer(500);
 		updateGold = Timer.createTimer(5000);
 		
@@ -91,7 +95,7 @@ public class Gui implements Serializable{
 		}
 		//Draw selected units info
 		g.setColor(Color.white);
-		int count = 0;
+		//int count = 0;
 		g.setColor(Color.darkGray);
 		g.fillRect((float) (this.screenSize.getWidth()-300), this.screenSize.height-180, 300, 180);
 		g.drawImage(squareFrame, (float) (this.screenSize.getWidth()-320), this.screenSize.height-200);
@@ -124,11 +128,11 @@ public class Gui implements Serializable{
 				xPos+=10+obj.getSprite().getWidth();
 			}
 			if(world.getGame().getSelectedObjects().contains(this.currentObject)){
-				if(currentObject.getType().equals("spacestation.png")){
-					drawBuildInterface(g);
+				if(currentObject.isBuilding()){
+					currentObject.drawBuildInterface(g,buttons);
 				}
-				else if(currentObject.getType().equals("ship.png")){
-					drawShipInterface(g);
+				else if(currentObject.isShip()){
+					currentObject.drawShipInterface(g,buttons,(float)this.screenSize.getWidth(),(float)this.screenSize.getHeight());
 				}
 			}
 			else{
@@ -145,23 +149,30 @@ public class Gui implements Serializable{
 				for(GameObject obj:world.getGame().getSelectedObjects()){
 					if(gameRct.get(obj).contains(x, y)){
 						this.currentObject=obj;
+						break;
 					}
 				}
 			}
-			for(Rectangle rct:buttons.values()){
+			for(String s:buttons.keySet()){
+				Rectangle rct = buttons.get(s);
 				if(rct.contains(x, y)){
 					if(t.isDone()){
 						if(this.currentObject.getType().equals("spacestation.png")){
-							GameObject tempObj = new GameObject(this.world,currentObject.getX(), currentObject.getY(),
-									new Image(Game.IMAGE_PATH + "ship.png"),
-									1,currentObject.getTeam(),"ship.png");
+							GameObject tempObj;
+							if(s.equals("destroyer")){
+								tempObj = new Destroyer(this.world,currentObject.getX(), currentObject.getY(),
+										Game.IMAGE_PATH +s+".png",// "ship.png"),
+										1,currentObject.getTeam(),s);
+							}
+							else{
+								tempObj = new StandardShip(this.world,currentObject.getX(), currentObject.getY(),
+										Game.IMAGE_PATH +s+".png",// "ship.png"),
+										1,currentObject.getTeam(),s);
+							}
 							tempObj.move((int)currentObject.getMoveX(),(int)currentObject.getMoveY());
 							currentObject.build(tempObj, 10000);
 							t.reset();
 						}
-//						else if(this.currentObject.getType().equals("ship.png")){
-//							currentObject.build(currentObject, 5000);
-//						}
 					}
 				}
 			}
@@ -169,52 +180,9 @@ public class Gui implements Serializable{
 		catch(NullPointerException e){
 			System.err.println("Null pointer at Gui.mouseClick");
 			e.printStackTrace();
-		} catch (SlickException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-	}
-	private void drawShipInterface(Graphics g) {
-		// TODO Auto-generated method stub
-//		if(this.currentObject.getExp()<100*this.currentObject.getLevel()){
-//			g.setColor(Color.red);
-//		}
-//		else
-//			g.setColor(Color.green);
-		for(Rectangle rct:buttons.values()){
-			//g.fill(rct);
-			Image s = this.currentObject.getSprite();
-			Float tmp = s.getRotation();
-			s.setRotation(0);
-			g.drawImage(this.currentObject.getSprite(), rct.getX()+5, rct.getY()+5);
-			s.setRotation(tmp);
-			//g.drawImage(Game.objectList.get(Game.IMAGE_PATH +"ship.png"), rct.getX()+5, rct.getY()+5);
-			g.setColor(Color.yellow);
-//			g.drawString("upgrade", rct.getX()-2, rct.getMaxY()+5);
-			
-			g.drawString("Level: "+level, rct.getMaxX()+50, rct.getY());
-			g.drawString("Damage: "+damage, rct.getMaxX()+50, rct.getY()+20);
-			g.drawString("Health: "+health, rct.getMaxX()+50, rct.getY()+40);
-			
-		}
-
 	}
 
-	private void drawBuildInterface(Graphics g) {
-		// TODO Auto-generated method stub
-		if(world.getGame().getMyTeam().getGold()<200){
-			g.setColor(Color.red);
-		}
-		else
-			g.setColor(Color.green);
-		for(Rectangle rct:buttons.values()){
-			g.fill(rct);
-			g.drawImage(Game.objectList.get(Game.IMAGE_PATH +"ship.png"), rct.getX()+5, rct.getY()+5);
-			g.setColor(Color.yellow);
-			g.drawString("200", rct.getX()+10, rct.getMaxY()+5);
-			
-		}
-	}
 
 	/**
 	 * Sets the status text shown at the bottom of the screen.
