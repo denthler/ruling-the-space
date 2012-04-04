@@ -27,7 +27,10 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 
+import se.space.buildings.Earth;
+import se.space.buildings.Spacestation;
 import se.space.spaceships.Destroyer;
+import se.space.spaceships.HealerShip;
 import se.space.spaceships.StandardShip;
 
 public class Game extends BasicGame implements Serializable
@@ -106,13 +109,15 @@ public class Game extends BasicGame implements Serializable
 		container.setShowFPS(false);
 		objectList = new HashMap<String,GameObject>();
 		objectList.put("ship",new StandardShip(null,-1,-1,
-			Game.IMAGE_PATH+"ship.png",1,null,"ship"));
+			Game.IMAGE_PATH+"ship.png",Game.IMAGE_PATH+"ship.png",1,null,"ship"));
 		objectList.put("destroyer",new Destroyer(null,-1,-1,
-				Game.IMAGE_PATH+"destroyer.png",1,null,"destroyer"));
-		objectList.put("earth",new Destroyer(null,-1,-1,
-				Game.IMAGE_PATH+"earth.png",1,null,"earth"));
-		objectList.put("spacestation",new Destroyer(null,-1,-1,
-				Game.IMAGE_PATH+"spacestation.png",1,null,"spacestation"));
+				Game.IMAGE_PATH+"destroyer.png",Game.IMAGE_PATH+"destroyer.png",1,null,"destroyer"));
+		objectList.put("healer",new HealerShip(null,-1,-1,
+				Game.IMAGE_PATH+"healer.png",Game.IMAGE_PATH+"healerIcon.png",1,null,"healer"));
+		objectList.put("earth",new Earth(null,-1,-1,
+				Game.IMAGE_PATH+"earth.png",Game.IMAGE_PATH+"earth.png",1,null,"earth"));
+		objectList.put("spacestation",new Spacestation(null,-1,-1,
+				Game.IMAGE_PATH+"spacestation.png",Game.IMAGE_PATH+"spacestation.png",1,null,"spacestation"));
 		
 			
 		
@@ -474,27 +479,31 @@ public class Game extends BasicGame implements Serializable
 				
 			}
 			if(editMode){
+				System.out.println(".");
 				if(editor.getType().equals("tile"))
 					tiles.setTile(mouseWorldX, mouseWorldY, editor.getSelectedType());
 				else if(!minimap.Area.contains(input.getMouseX(), input.getMouseY()) 
-						&& !gui.Area.contains(input.getMouseX(), input.getMouseY()) 
+						&& !gui.Area.contains(input.getMouseX(), input.getMouseY())
 						&& !editor.Area.contains(input.getMouseX(), input.getMouseY())){
+					System.out.println(",");
 					if(t.isDone()){
+						System.out.println("-");
 						int speed;
-						if(editor.getSelectedType().equals("earth.png")
-								||editor.getSelectedType().equals("spacestation.png")){
+						if(editor.getSelectedType().equals("earth")
+								||editor.getSelectedType().equals("spacestation")){
 							speed=0;
 						}
 						else{
 							speed=1;
 						}
-						GameObject tempObj = new GameObject(this.gameWorld,mouseWorldX, mouseWorldY,
-								Game.IMAGE_PATH + editor.getSelectedType(),
-								speed,editor.getSelectedTeam(),editor.getSelectedType());
-						if(editor.getSelectedType().equals("spacestation.png")){
-							tempObj.setHealth(2000);
-							tempObj.setDamage(5);
+						System.out.println("¤¤¤ FOUND "+editor.getSelectedType()+" ¤¤¤");
+						if(editor.getSelectedType().equals("ship")){
+							
 						}
+							
+						GameObject tempObj = GameObject.createObject(editor.getSelectedType(),this.gameWorld,mouseWorldX,mouseWorldY,editor.getSelectedTeam());
+						//tempObj.setAngle(240);
+						System.out.println(tempObj.getAngle());
 						World.addObject(tempObj);
 						t.reset();
 					}
@@ -568,7 +577,7 @@ public class Game extends BasicGame implements Serializable
 					doubleClickTimer.reset();
 					doubleClick = false;
 				}
-				else if(selectedObjects.size()>0){
+				else if(selectedObjects!=null && selectedObjects.size()>0){
 					String type = null;
 					for(GameObject o:selectedObjects){
 						if(type==null){

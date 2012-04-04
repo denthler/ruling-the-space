@@ -12,6 +12,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 
 import se.space.spaceships.Destroyer;
+import se.space.spaceships.HealerShip;
 import se.space.spaceships.StandardShip;
 
 /**
@@ -55,6 +56,7 @@ public class Gui implements Serializable{
 		buttons = new HashMap<String,Rectangle>();
 		buttons.put("ship", new Rectangle((float) (this.screenSize.getWidth()-280), this.screenSize.height-160, 50, 50));
 		buttons.put("destroyer", new Rectangle((float) (this.screenSize.getWidth()-200), this.screenSize.height-160, 50, 50));
+		buttons.put("healer", new Rectangle((float) (this.screenSize.getWidth()-120), this.screenSize.height-160, 50, 50));
 		update = Timer.createTimer(500);
 		updateGold = Timer.createTimer(5000);
 		
@@ -157,18 +159,24 @@ public class Gui implements Serializable{
 				Rectangle rct = buttons.get(s);
 				if(rct.contains(x, y)){
 					if(t.isDone()){
-						if(this.currentObject.getType().equals("spacestation.png")){
+						if(this.currentObject.getType().equals("spacestation")){
 							GameObject tempObj;
-							if(s.equals("destroyer")){
-								tempObj = new Destroyer(this.world,currentObject.getX(), currentObject.getY(),
-										Game.IMAGE_PATH +s+".png",// "ship.png"),
-										1,currentObject.getTeam(),s);
-							}
-							else{
-								tempObj = new StandardShip(this.world,currentObject.getX(), currentObject.getY(),
-										Game.IMAGE_PATH +s+".png",// "ship.png"),
-										1,currentObject.getTeam(),s);
-							}
+							tempObj = GameObject.createObject(s, this.world, currentObject.getX(), currentObject.getY(), currentObject.getTeam());
+//							if(s.equals("destroyer")){
+//								tempObj = new Destroyer(this.world,currentObject.getX(), currentObject.getY(),
+//										Game.IMAGE_PATH +s+".png",// "ship.png"),
+//										1,currentObject.getTeam(),s);
+//							}
+//							else if(s.equals("healer")) {
+//								tempObj = new HealerShip(this.world,currentObject.getX(), currentObject.getY(),
+//										Game.IMAGE_PATH +s+".png",// "ship.png"),
+//										1,currentObject.getTeam(),s);
+//							}
+//							else{
+//								tempObj = new StandardShip(this.world,currentObject.getX(), currentObject.getY(),
+//										Game.IMAGE_PATH +s+".png",// "ship.png"),
+//										1,currentObject.getTeam(),s);
+//							}
 							tempObj.move((int)currentObject.getMoveX(),(int)currentObject.getMoveY());
 							currentObject.build(tempObj, 10000);
 							t.reset();

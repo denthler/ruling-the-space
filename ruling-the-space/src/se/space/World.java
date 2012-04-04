@@ -177,7 +177,8 @@ public class World implements Serializable {
 							String type = ((String) list.get(12));
 
 							GameObject gObj = null;
-							gObj = new GameObject(game.getGameworld(), (int) x, (int) y, Game.IMAGE_PATH + type, (int) speed, team, type);
+							//gObj = new GameObject(game.getGameworld(), (int) x, (int) y, Game.IMAGE_PATH + type,Game.IMAGE_PATH + type, (int) speed, team, type);
+							gObj = GameObject.createObject(type, game.getGameworld(), (int)x, (int)y, team);
 							gObj.setAngle((int) angle);
 							gObj.setMoveX(movex);
 							gObj.setMoveY(movey);

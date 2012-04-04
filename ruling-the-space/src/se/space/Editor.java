@@ -89,9 +89,10 @@ public class Editor implements Serializable{
 		for(GameObject go: Game.objectList.values()){
 			Image img = go.getSprite();
 			if(buttons.get(img).contains(x, y)){
-				String tempSelectedType[]=img.getResourceReference().split("/");
-				selectedType=tempSelectedType[1];
-				setType("object");
+				//String tempSelectedType[]=img.getResourceReference().split("/");
+				selectedType=go.getType();//tempSelectedType[1];
+				System.out.println("_"+go.getType());
+				setType("gameobject");
 			}
 		}
 		for(Rectangle rct:teamColor){
@@ -124,7 +125,11 @@ public class Editor implements Serializable{
 				yPos=100+((int)count/4)*50;
 				xPos-=120;
 			}
-			if(img.getResourceReference().equals(Game.IMAGE_PATH+selectedType)){
+			
+			if(getType().equals("tile")&&img.getResourceReference().equals(Game.IMAGE_PATH+selectedType)){
+				g.setColor(Color.green);
+			}
+			else if(getType().equals("gameobject") && img.getResourceReference().equals(world.getGame().objectList.get(selectedType).imgPath)){ //&& img.getResourceReference().equals(world.getGame().objectList.get(selectedType).imgPath)){
 				g.setColor(Color.green);
 			}
 			else{
@@ -139,7 +144,10 @@ public class Editor implements Serializable{
 		yPos=300;
 		for(GameObject go: Game.objectList.values()){
 			Image img = go.getSprite();
-			if(img.getResourceReference().equals(Game.IMAGE_PATH+selectedType)){
+			if(getType().equals("tile")&&img.getResourceReference().equals(Game.IMAGE_PATH+selectedType)){
+				g.setColor(Color.green);
+			}
+			else if(getType().equals("gameobject") && img.getResourceReference().equals(world.getGame().objectList.get(selectedType).imgPath)){
 				g.setColor(Color.green);
 			}
 			else{
