@@ -12,20 +12,23 @@ public class Destroyer extends se.space.spaceships.StandardShip {
 	private int defDamage = 3;
 	private int defHealth = 300;
 	private int defPrice = 400;
-	public Destroyer(World tempWorld, int x, int y, String imgPath,
+	private double defSpeed = 1;
+	public Destroyer(World tempWorld, int x, int y, String imgPath,String imgIconPath,
 			int tempSpeed, Team tempTeam, String tempType) {
-		super(tempWorld, x, y, imgPath, tempSpeed, tempTeam, tempType);
+		super(tempWorld, x, y, imgPath,imgIconPath, tempSpeed, tempTeam, tempType);
 		setDefaultValues();
 	}
-	public Destroyer(int x, int y, String imgPath){
-		super(x,y,imgPath);
+	public Destroyer(int x, int y, String imgPath,String imgIconPath){
+		super(x,y,imgPath, imgIconPath);
 		setDefaultValues();
 	}
 	protected void setDefaultValues(){
 		setDamage(defDamage);
 		setHealth(defHealth);
 		setPrice(defPrice);
+		setSpeed(defSpeed);
 		setShip(true);
+		setType("destroyer");
 		//System.out.println(super.getDamage()+"-"+super.getHealth()+"-"+super.getPrice());
 	}
 }

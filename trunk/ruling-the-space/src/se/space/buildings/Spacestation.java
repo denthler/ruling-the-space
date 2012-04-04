@@ -17,24 +17,28 @@ import se.space.World;
 public class Spacestation extends se.space.GameObject {
 	private static int defDamage = 5;
 	private static int defHealth = 2000;
-	public Spacestation(World tempWorld, int x, int y, String imgPath,
+	private double defSpeed = 0;
+	public Spacestation(World tempWorld, int x, int y, String imgPath,String imgIconPath,
 			int tempSpeed, Team tempTeam, String tempType) {
-		super(tempWorld, x, y, imgPath, tempSpeed, tempTeam, tempType);
+		super(tempWorld, x, y, imgPath, imgIconPath, tempSpeed, tempTeam, tempType);
 		setDefaultValues();
 	}
-	public Spacestation(int x, int y, String imgPath){
-		super(x,y,imgPath);
+	public Spacestation(int x, int y, String imgPath,String imgIconPath){
+		super(x,y,imgPath, imgIconPath);
 		setDefaultValues();
 	}
 	private void setDefaultValues(){
 		super.setDamage(defDamage);
 		super.setHealth(defHealth);
+		super.setSpeed(defSpeed);
 		super.setBuilding(true);
+		setType("spacestation");
 	}
 	public void drawBuildInterface(Graphics g,HashMap<String,Rectangle> buttons){
 		// TODO Auto-generated method stub
 		
 		for(String s:buttons.keySet()){
+			System.out.println(world.getGame().objectList.toString());
 			if(world.getGame().getMyTeam().getGold()<world.getGame().objectList.get(s).getPrice()){
 				g.setColor(Color.red);
 			}
@@ -42,7 +46,7 @@ public class Spacestation extends se.space.GameObject {
 				g.setColor(Color.green);
 			Rectangle rct = buttons.get(s);
 			g.fill(rct);
-			g.drawImage(Game.objectList.get(s).getSprite(), rct.getX()+5, rct.getY()+5);
+			g.drawImage(Game.objectList.get(s).getIcon(), rct.getX()+5, rct.getY()+5);
 			g.setColor(Color.yellow);
 			g.drawString(""+world.getGame().objectList.get(s).getPrice(), rct.getX()+10, rct.getMaxY()+5);
 		}

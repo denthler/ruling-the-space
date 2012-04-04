@@ -16,20 +16,23 @@ public class StandardShip extends se.space.GameObject {
 	private int defDamage = 1;
 	private int defHealth = 200;
 	private int defPrice = 200;
-	public StandardShip(World tempWorld, int x, int y, String imgPath,
+	private double defSpeed = 1;
+	public StandardShip(World tempWorld, int x, int y, String imgPath,String imgIconPath,
 			int tempSpeed, Team tempTeam, String tempType) {
-		super(tempWorld, x, y, imgPath, tempSpeed, tempTeam, tempType);
+		super(tempWorld, x, y, imgPath,imgIconPath, tempSpeed, tempTeam, tempType);
 		setDefaultValues();
 	}
-	public StandardShip(int x, int y, String imgPath){
-		super(x,y,imgPath);
+	public StandardShip(int x, int y, String imgPath,String imgIconPath){
+		super(x,y,imgPath,imgIconPath);
 		setDefaultValues();
 	}
 	protected void setDefaultValues(){
 		super.setDamage(defDamage);
 		super.setHealth(defHealth);
 		super.setPrice(defPrice);
+		super.setSpeed(defSpeed);
 		super.setShip(true);
+		setType("ship");
 	}
 	public void draw(Graphics g){
 		super.draw(g);

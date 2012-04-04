@@ -123,10 +123,11 @@ public class TileMap {
 					int x = Integer.decode(lineStrings[1]);
 					int y = Integer.decode(lineStrings[2]);
 					String imgPath = lineStrings[0];
-					String type = lineStrings[0].split("/")[1];
+					String type = lineStrings[0].split("/")[1].replace(".png","");
 					int health = Integer.decode(lineStrings[6]);
 					GameObject tempObj = null;
-					if(type.equals("ship.png")){
+					tempObj = GameObject.createObject(type, world, x, y, t);
+					/*if(type.equals("ship.png")){
 						tempObj = new StandardShip(world,x,y,imgPath,speed,t,type);
 						tempObj.setHealth(health);
 					}
@@ -138,7 +139,7 @@ public class TileMap {
 					}
 					else if(type.equals("earth.png")){
 						tempObj = new Earth(world,x,y,imgPath,speed,t,type);
-					}
+					}*/
 					if(tempObj!=null){
 						world.getGameObjects().add(tempObj);
 					}
