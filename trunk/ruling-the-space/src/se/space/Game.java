@@ -103,6 +103,7 @@ public class Game extends BasicGame implements Serializable
 	private boolean NetworkSaved = false;
 	private boolean runOnce = false;
 	private boolean victory = false;
+	private boolean defeat = false;
 
 	@Override
 	public void init(GameContainer container) throws SlickException {
@@ -402,18 +403,29 @@ public class Game extends BasicGame implements Serializable
 				System.out.println(n.getResponse());
 				runOnce = true;
 		}*/
-		boolean isVictory=false;
+		
+		
+		boolean isVictory=true;
+		boolean isDefeat=true;
 		for(GameObject obj: gameWorld.getGameObjects()){
-			if(obj.getTeam()==myTeam){
-				isVictory=true;
-			}
-			else{
+			if(obj.getTeam()!=myTeam){
 				isVictory=false;
 				break;
 			}
 		}
 		if(isVictory){
 			victory=true;
+		}
+		if(!isVictory){
+			for(GameObject obj: gameWorld.getGameObjects()){
+				if(obj.getTeam()==myTeam){
+					isDefeat=false;
+					break;
+				}
+			}
+			if(isDefeat){
+				defeat=true;
+			}
 		}
 		getWorldView().update();
 		if(!paused) {
@@ -685,6 +697,11 @@ public class Game extends BasicGame implements Serializable
 			g.setColor(Color.orange);
 			g.setAntiAlias(true);
 			g.drawString("VICTORY!", worldView.getScreenSize().width/2-75, worldView.getScreenSize().height/2);
+		}
+		if(defeat){
+			g.setColor(Color.red);
+			g.setAntiAlias(true);
+			g.drawString("DEFEATED!", worldView.getScreenSize().width/2-75, worldView.getScreenSize().height/2);
 		}
 		frameCount++;
 
