@@ -1,5 +1,7 @@
-package se.space.buildings;
+package se.space.spaceships;
 
+import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -14,37 +16,37 @@ import se.space.Team;
 import se.space.Timer;
 import se.space.World;
 
-public class Spacestation extends se.space.GameObject {
-	private static int defDamage = 5;
-	private static int defHealth = 2000;
-	private double defSpeed = 0;
-	private static int defPrice = 2000;
+public class BuilderShip extends se.space.spaceships.StandardShip {
+	private int defDamage = 0;
+	private int defHealth = 200;
+	private int defPrice = 300;
+	private double defSpeed = 0.8;
 	private HashMap<String,Rectangle> buttons;
-	public Spacestation(World tempWorld, int x, int y, String imgPath,String imgIconPath,
+	public BuilderShip(World tempWorld, int x, int y, String imgPath,String imgIconPath,
 			int tempSpeed, Team tempTeam, String tempType) {
 		super(tempWorld, x, y, imgPath, imgIconPath, tempSpeed, tempTeam, tempType);
 		setDefaultValues();
 	}
-	public Spacestation(int x, int y, String imgPath,String imgIconPath){
-		super(x,y,imgPath, imgIconPath);
+	public BuilderShip(int x, int y, String imgPath,String imgIconPath){
+		super(x,y,imgPath,imgIconPath);
 		setDefaultValues();
 	}
-	private void setDefaultValues(){
-		super.setDamage(defDamage);
-		super.setHealth(defHealth);
-		super.setSpeed(defSpeed);
-		super.setPrice(defPrice);
-		super.setBuilding(true);
-		canBuild = true; // Can build objects
-		setType("spacestation");
+	protected void setDefaultValues(){
+		setDamage(defDamage);
+		setHealth(defHealth);
+		setPrice(defPrice);
+		setSpeed(defSpeed);
+		setShip(true);
+		setType("builder");
+		canBuild = true;
+		//setBuilding(true);
+		//healTimer = Timer.createTimer(200);
+		//System.out.println(super.getDamage()+"-"+super.getHealth()+"-"+super.getPrice());
 	}
+	
 	public void addButtons(float screenWidth,float screenHeight){
 		buttons = new HashMap<String,Rectangle>();
-		buttons.put("ship", new Rectangle((float) (screenWidth-280), screenHeight-160, 50, 50));
-		buttons.put("destroyer", new Rectangle((float) (screenWidth-200), screenHeight-160, 50, 50));
-		buttons.put("healer", new Rectangle((float) (screenWidth-120), screenHeight-160, 50, 50));
-		buttons.put("builder", new Rectangle((float) (screenWidth-280), screenHeight-80, 50, 50));
-		
+		buttons.put("spacestation", new Rectangle((float) (screenWidth-280), screenHeight-160, 50, 50));
 	}
 	public void drawInterface(Graphics g,float screenWidth,float screenHeight){
 		// TODO Auto-generated method stub
@@ -89,4 +91,8 @@ public class Spacestation extends se.space.GameObject {
 			this.buildQueue.add(obj);
 		}
 	}
+	
+	@Override
+	public void checkLevelUp(){}
+	public void setExp(int exp) {}
 }

@@ -40,7 +40,8 @@ public class StandardShip extends se.space.GameObject {
 		g.fillRect(getX(), getY()+4, (sprite.getWidth()-(sprite.getWidth()*(100*level-exp)/(100*level))), 4);
 	}
 	
-	public void drawShipInterface(Graphics g,HashMap<String,Rectangle> buttons,float screenWidth,float screenHeight){
+	public void drawInterface(Graphics g,float screenWidth,float screenHeight){
+		System.out.println("STANDARD: HEJSAN!");
 	// TODO Auto-generated method stub
 //		if(this.currentObject.getExp()<100*this.currentObject.getLevel()){
 //			g.setColor(Color.red);

@@ -169,7 +169,6 @@ public class TileMap {
 			Graphics g = cachedImage.getGraphics();
 			if(!list[(int) (x/20)][(int) (y/20)].getTileName().equals(Game.IMAGE_PATH+name))
 			{
-				System.out.println(""+((int)(x/20))+" "+ ((int)(y/20)));
 				g.drawImage(sprite.get(Game.IMAGE_PATH+name), ((int)(x/20))*20, ((int)(y/20))*20);
 				list[(int) (x/20)][(int) (y/20)].setTileName(Game.IMAGE_PATH+name);
 			}

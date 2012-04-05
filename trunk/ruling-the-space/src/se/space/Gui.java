@@ -26,7 +26,6 @@ public class Gui implements Serializable{
 	public 	Rectangle 	Area;
 	public 	HashMap<Rectangle,GameObject> rctGame;
 	public 	HashMap<GameObject,Rectangle> gameRct;
-	private HashMap<String,Rectangle> buttons;
 	private Timer t;
 	private Timer update;
 	private Timer updateGold;
@@ -53,10 +52,6 @@ public class Gui implements Serializable{
 		this.screenSize = screenSize;
 		statusTextTimer = Timer.createTimer(3000);
 		this.Area=new Rectangle(0, screenSize.height - 150, screenSize.width, 150);
-		buttons = new HashMap<String,Rectangle>();
-		buttons.put("ship", new Rectangle((float) (this.screenSize.getWidth()-280), this.screenSize.height-160, 50, 50));
-		buttons.put("destroyer", new Rectangle((float) (this.screenSize.getWidth()-200), this.screenSize.height-160, 50, 50));
-		buttons.put("healer", new Rectangle((float) (this.screenSize.getWidth()-120), this.screenSize.height-160, 50, 50));
 		update = Timer.createTimer(500);
 		updateGold = Timer.createTimer(5000);
 		
@@ -130,12 +125,11 @@ public class Gui implements Serializable{
 				xPos+=10+obj.getSprite().getWidth();
 			}
 			if(world.getGame().getSelectedObjects().contains(this.currentObject)){
-				if(currentObject.isBuilding()){
-					currentObject.drawBuildInterface(g,buttons);
-				}
+				this.currentObject.drawInterface(g,(float)this.screenSize.getWidth(),(float)this.screenSize.getHeight());
+		/*		}
 				else if(currentObject.isShip()){
 					currentObject.drawShipInterface(g,buttons,(float)this.screenSize.getWidth(),(float)this.screenSize.getHeight());
-				}
+				}*/
 			}
 			else{
 				for(GameObject obj:world.getGame().getSelectedObjects()){
@@ -155,34 +149,8 @@ public class Gui implements Serializable{
 					}
 				}
 			}
-			for(String s:buttons.keySet()){
-				Rectangle rct = buttons.get(s);
-				if(rct.contains(x, y)){
-					if(t.isDone()){
-						if(this.currentObject.getType().equals("spacestation")){
-							GameObject tempObj;
-							tempObj = GameObject.createObject(s, this.world, currentObject.getX(), currentObject.getY(), currentObject.getTeam());
-//							if(s.equals("destroyer")){
-//								tempObj = new Destroyer(this.world,currentObject.getX(), currentObject.getY(),
-//										Game.IMAGE_PATH +s+".png",// "ship.png"),
-//										1,currentObject.getTeam(),s);
-//							}
-//							else if(s.equals("healer")) {
-//								tempObj = new HealerShip(this.world,currentObject.getX(), currentObject.getY(),
-//										Game.IMAGE_PATH +s+".png",// "ship.png"),
-//										1,currentObject.getTeam(),s);
-//							}
-//							else{
-//								tempObj = new StandardShip(this.world,currentObject.getX(), currentObject.getY(),
-//										Game.IMAGE_PATH +s+".png",// "ship.png"),
-//										1,currentObject.getTeam(),s);
-//							}
-							tempObj.move((int)currentObject.getMoveX(),(int)currentObject.getMoveY());
-							currentObject.build(tempObj, 10000);
-							t.reset();
-						}
-					}
-				}
+			if(this.currentObject.canBuild()){
+				this.currentObject.checkButtonPressed(x,y,t);
 			}
 		}
 		catch(NullPointerException e){
