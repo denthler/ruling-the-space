@@ -45,6 +45,7 @@ public class GameObject implements Serializable {
 	protected Timer buildTimer, captureTimer;
 	protected int level;
 	protected boolean building = false;
+	protected boolean canBuild = false;
 	protected boolean ship = false;
 	protected transient Queue<GameObject> buildQueue;
 	Point fireAt;
@@ -90,9 +91,13 @@ public class GameObject implements Serializable {
 		else if(type.equals("spacestation")){
 			return new Spacestation(gameWorld,x, y,t.imgPath,t.imgIconPath,(int)t.speed,team,t.type);
 		}
-		else{
-			return new GameObject(gameWorld,x, y,t.imgPath,t.imgIconPath,(int)t.speed,team,t.type);
+		else if(type.equals("builder")){
+			return new BuilderShip(gameWorld,x, y,t.imgPath,t.imgIconPath,(int)t.speed,team,t.type);
 		}
+		return null;
+		/*else{
+			return new GameObject(gameWorld,x, y,t.imgPath,t.imgIconPath,(int)t.speed,team,t.type);
+		}*/
 
 	}
 	public void checkLevelUp(){
@@ -367,7 +372,17 @@ public class GameObject implements Serializable {
 	public void printValues(){
 		//	System.out.println(defDamage+"-"+defHealth+"-"+defPrice);
 	}
-	public void drawBuildInterface(Graphics g,
-			HashMap<String, Rectangle> buttons) {}
-	public void drawShipInterface(Graphics g, HashMap<String, Rectangle> buttons, float d, float e) {}
+	public void drawInterface(Graphics g,float x,float y) {
+		System.out.println("JAG BORDE INTE KORAS :(");
+		// TODO Auto-generated method stub
+		
+	}
+	public boolean canBuild() {
+		// TODO Auto-generated method stub
+		return canBuild;
+	}
+	public void checkButtonPressed(int x, int y, Timer t) {
+		// TODO Auto-generated method stub
+		
+	}
 }
