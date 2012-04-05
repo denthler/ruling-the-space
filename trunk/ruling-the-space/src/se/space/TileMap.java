@@ -152,9 +152,11 @@ public class TileMap {
 		}
 		catch(IOException e){}
 		
-		game.blueTeam.setGold(0);
-		game.redTeam.setGold(0);
-		game.grayTeam.setGold(0);
+		game.blueTeam.resetGold();
+		game.redTeam.resetGold();
+		game.grayTeam.resetGold();
+		
+		
 		game.setSelectedObjects(null);
 		game.setSelectMode(false);
 		game.setDoubleClick(false);
