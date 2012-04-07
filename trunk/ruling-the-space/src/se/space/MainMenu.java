@@ -24,6 +24,10 @@ public class MainMenu {
 	private HashMap<String,Rectangle> lobbyButtons;
 	private LinkedList<String> lobbyMenuItems;
 
+	//Join menu
+	private HashMap<String,Rectangle> joinButtons;
+	private LinkedList<String> joinMenuItems;
+
 	public Rectangle Area;
 	private Lobby lobby;
 
@@ -33,10 +37,12 @@ public class MainMenu {
 	private int lobbyPortNr = 15000;
 	private String ipToConnect;
 	private NetworkClient n;
+	NetworkServer server;
 	private int netTime = 0;
 	private String nick;
 
-	public MainMenu(Game game, World gameWorld, View worldView) {
+	public MainMenu(Game game, World gameWorld, View worldView,NetworkClient net) {
+		n=net;
 		screenSize = worldView.getScreenSize();
 		buttons = new HashMap<String,Rectangle>();
 		MenuItems = new LinkedList<String>();
@@ -45,7 +51,7 @@ public class MainMenu {
 
 		Area = new Rectangle(screenSize.width/2-150, 0, 300, screenSize.height-150);
 
-		//MenuItems.add("New Game");
+		//Main menu
 		MenuItems.add("Multiplayer");
 		MenuItems.add("Exit");
 
@@ -57,18 +63,9 @@ public class MainMenu {
 			yPos+=40;
 		}
 
-
-
 		//Lobby menu
 		lobbyButtons = new HashMap<String,Rectangle>();
 		lobbyMenuItems = new LinkedList<String>();
-
-		//Create graphics
-		/*screenSize = worldView.getScreenSize();
-		Area = new Rectangle(screenSize.width/2-150, 0, 400, screenSize.height-150);
-
-		int xPos=screenSize.width/2-150+25;
-		int yPos=120;*/
 
 		lobbyMenuItems.add("Host game");
 		lobbyMenuItems.add("Join by ip");
@@ -81,6 +78,21 @@ public class MainMenu {
 			yPos+=40;
 		}
 
+		//Join menu
+		joinButtons = new HashMap<String,Rectangle>();
+		joinMenuItems = new LinkedList<String>();
+
+		joinMenuItems.add("Join");
+		joinMenuItems.add("Disconnect");
+		int yPosTemp = yPos;
+		yPos = 110;
+		Iterator<String> k = joinMenuItems.iterator();
+		while (k.hasNext()){
+			String next = k.next();
+			joinButtons.put(next,new Rectangle(xPos-5, yPos-5, 130, 30));
+			xPos+=130;
+		}
+		yPos=yPosTemp+40;
 
 		//Network
 		//n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr), "RUNNING?");
@@ -132,11 +144,44 @@ public class MainMenu {
 		}
 		if(joinVisible){
 			drawJoinByIp(g);
+			drawJoinMenu(g);
 		}
 		else{
 			ipToConnect = "";
 		}
+		if(isServer()&&!visible){
+			drawJoinMenu(g);
+		}
 	}
+
+	public void drawJoinMenu(Graphics g){
+		int xPos=screenSize.width/2-150+25;
+		int yPos=110;
+
+		//		g.setColor(Color.darkGray);
+		//
+		//		g.fillRect(screenSize.width/2-150, 50, 300, screenSize.height-250);
+
+		if(isServer()){
+			g.setColor(Color.red);
+		}
+		else{
+			g.setColor(Color.green);
+		}
+
+		Iterator<String> i = joinMenuItems.iterator();
+		while (i.hasNext()){
+			String next = i.next();
+
+			g.drawString(next, xPos, yPos);
+			g.draw(joinButtons.get(next));
+			yPos+=0;
+			xPos+=130;
+			g.setColor(Color.green);
+		}
+
+	}
+
 
 	public void drawMenu(Graphics g){
 		int xPos=screenSize.width/2-150+25;
@@ -187,7 +232,7 @@ public class MainMenu {
 		}
 
 		if(isRunning && netTime > 1000){
-			
+
 			//TODO fix this code
 			/*
 			g.setColor(Color.green);
@@ -198,8 +243,8 @@ public class MainMenu {
 			else{
 				g.drawString("Server not running", screenSize.width/2-150, 80);
 			}
-			*/
-			
+			 */
+
 			netTime = 0;
 		}
 		else if(isRunning){
@@ -207,7 +252,7 @@ public class MainMenu {
 			netTime++;
 		}
 		else if(hasJoined){
-			g.drawString("You has joined the game as player"+n.playerid, screenSize.width/2-150, 120);
+			g.drawString("You has joined the game as player"+n.playerid, screenSize.width/2-150, 150);
 		}
 	}
 
@@ -239,6 +284,7 @@ public class MainMenu {
 				else if(buttons.get("Multiplayer") != null && buttons.get("Multiplayer").contains(x, y)){
 					visible = false;
 					lobbyVisible = true;
+					joinVisible = false;
 					//lobby.setMenu(this);
 					//lobby.setVisible(true);
 					//TODO setup lobby
@@ -260,40 +306,20 @@ public class MainMenu {
 					//TODO Create a server
 					if(!isRunning){
 						isRunning = true;
-						//Thread t1 = new Network_OLD(lobbyPortNr, true); 
-						//t1.start();
 
 						try {
-							////////server = new NetworkServer(lobbyPortNr);
-							NetworkServer server = new NetworkServer(lobbyPortNr);
-							new Thread(server).start();
-							
-							
-							//Thread t1 = new NetworkServer(lobbyPortNr);
-							//t1.start();
+							//Skapar en ny server
+							server = new NetworkServer(lobbyPortNr);
 
+							//Väntar på att servern ska starta
 							Thread.sleep(500);
 
-							//n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr), "RUNNING?");
-							
-//							n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr));
-//							//n.sendObject("RUNNING?");
-//							n.sendObject("JOIN");
+							//Joinar server som nu skapats
 							n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr));
-							//n.start();
-							//n.sendObject("JOIN");
-							
-							//NetworkClient n2 = new NetworkClient(new Socket(ipToConnect, lobbyPortNr));
-							//new Thread(n2).start();
-							//n2.sendObject("RUNNING?");
-							
 
 						} catch (Exception e1) {
 							System.out.println("Exception " + e1);
 						}
-						//n.initConnectionToServer();
-						//n.sendMsg("RUNNING?");
-
 
 					}
 					else{
@@ -301,6 +327,35 @@ public class MainMenu {
 				}
 				else if(lobbyButtons.get("Join by ip") != null && lobbyButtons.get("Join by ip").contains(x, y)){
 					joinVisible = true;
+				}
+				else if(joinIsVisible() && joinButtons.get("Join") != null && joinButtons.get("Join").contains(x, y)){
+					if(n == null && !hasJoined){
+						join();
+					}
+				}
+				else if(n!=null && n.hasJoined && joinIsVisible() && joinButtons.get("Disconnect") != null && joinButtons.get("Disconnect").contains(x, y)){
+					n.hasJoined = false;
+					hasJoined = false;
+					isRunning = false;
+					n.closeConnectionToServer();
+					n = null;
+					Game.setNet(n);
+				}
+				else if(server!=null && isServer() && joinButtons.get("Disconnect") != null && joinButtons.get("Disconnect").contains(x, y)){
+					int players = server.getPlayerid();
+					if(players>1){
+						for (int j= 2;j<=players;j++){ 
+							n.sendObject(new NetworkObject("DISCONNECT"+j,"COMMAND",j));
+						}
+					}
+					n.hasJoined = false;
+					hasJoined = false;
+					isRunning = false;
+					n.closeConnectionToServer();
+					n = null;
+					Game.setNet(n);
+					server = null;
+
 				}
 			}
 		}
@@ -326,7 +381,7 @@ public class MainMenu {
 		try {
 			n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr));
 			Thread.sleep(1000);
-			
+
 			if(n.hasJoined==true){
 				setClient(true);
 			}

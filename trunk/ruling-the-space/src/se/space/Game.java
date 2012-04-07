@@ -95,7 +95,7 @@ public class Game extends BasicGame implements Serializable
 	public static final String IMAGE_PATH = "images/";
 
 	//Network
-	private NetworkClient n;
+	private static NetworkClient n;
 	private boolean NetworkWorldLoaded = false;
 	private boolean NetworkSaved = false;
 	private boolean runOnce = false;
@@ -167,7 +167,7 @@ public class Game extends BasicGame implements Serializable
 		gameWorld.update(0);
 		//lobby = new Lobby(this,gameWorld,getWorldView());
 		lobby = new Lobby();
-		menu = new MainMenu(this,gameWorld,getWorldView());
+		menu = new MainMenu(this,gameWorld,getWorldView(),n);
 		menu.setLobby(lobby);
 		dragSelect=new Point();
 		
@@ -222,11 +222,7 @@ public class Game extends BasicGame implements Serializable
 			menu.setVisible(!menu.isVisible());
 			if(menu.lobbyIsVisible() && menu.isVisible()){
 				menu.setLobbyVisible(false);
-			}
-		}
-		if(menu.isVisible()){
-			if(input.isMousePressed(Input.MOUSE_LEFT_BUTTON)){
-
+				menu.setJoinIsVisible(false);
 			}
 		}
 		boolean lcont = false;
@@ -700,14 +696,6 @@ public class Game extends BasicGame implements Serializable
 		}
 		frameCount++;
 
-		//Detta pausar programmet i en millisekund, för att datorn inte
-		//ska bli superseg när jag minimerar spelet
-		try {
-			Thread.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	public static void main(String[] args) {
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -750,10 +738,10 @@ public class Game extends BasicGame implements Serializable
 	public void setClient(boolean c){
 		menu.setClient(c);
 	}
-	public void setNet(NetworkClient client){
+	public static void setNet(NetworkClient client){
 		n = client;
 	}
-	public NetworkClient getNet(){
+	public static NetworkClient getNet(){
 		return n;
 	}
 	public World getGameworld(){

@@ -18,35 +18,35 @@ public class NetworkClient extends Thread {
 	public boolean hasJoined = false;
 	public boolean dataToLoad = false;
 
-	public NetworkClient(Socket clientSocket, Object msgtosend) {
-		client = clientSocket;
-		
-		try{
-			client.setTcpNoDelay(true);
-		}
-		catch(Exception e){
-			System.out.println("setTcpNoDelay Failed");
-		}
-		
-		msg = msgtosend;
-		try {
-			client.setSoTimeout(1000);
-			oos = new ObjectOutputStream(client.getOutputStream());
-			ois = new ObjectInputStream(client.getInputStream());
-			oos.writeObject(new NetworkObject("ClientInit",msg,playerid));
-			oos.flush();
-		} catch(Exception e1) {
-			try {
-				client.close();
-			}catch(Exception e) {
-				System.out.println(e.getMessage());
-			}
-			return;
-		}
-		// Set the thread priority down so that the ServerSocket
-					// will be responsive to new clients.
-		setPriority( MIN_PRIORITY );
-	}
+//	public NetworkClient(Socket clientSocket, Object msgtosend) {
+//		client = clientSocket;
+//		
+//		try{
+//			client.setTcpNoDelay(true);
+//		}
+//		catch(Exception e){
+//			System.out.println("setTcpNoDelay Failed");
+//		}
+//		
+//		msg = msgtosend;
+//		try {
+//			client.setSoTimeout(1000);
+//			oos = new ObjectOutputStream(client.getOutputStream());
+//			ois = new ObjectInputStream(client.getInputStream());
+//			oos.writeObject(new NetworkObject("ClientInit",msg,playerid));
+//			oos.flush();
+//		} catch(Exception e1) {
+//			try {
+//				client.close();
+//			}catch(Exception e) {
+//				System.out.println(e.getMessage());
+//			}
+//			return;
+//		}
+//		// Set the thread priority down so that the ServerSocket
+//					// will be responsive to new clients.
+//		setPriority( MIN_PRIORITY );
+//	}
 
 	public NetworkClient(Socket clientSocket) {
 		client = clientSocket;
@@ -65,7 +65,7 @@ public class NetworkClient extends Thread {
 			}
 			return;
 		}
-		while(!hasJoined){
+		while(client != null && !hasJoined){
 			sendObject("JOIN");
 		}
 		// Set the thread priority down so that the ServerSocket
@@ -80,7 +80,8 @@ public class NetworkClient extends Thread {
 			oos.flush();
 			ois.close();
 			oos.close();
-			client.close();
+			//client.close();
+			//client = null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -159,7 +160,12 @@ public class NetworkClient extends Thread {
 			//oos.close();
 			oos.reset();
 
-		} catch (IOException e) {
+		}
+		catch (SocketException e){
+			System.out.println("Disconnected?");
+			
+		}
+		catch (IOException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
 			throw new RuntimeException(e);

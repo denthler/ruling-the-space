@@ -41,7 +41,7 @@ public class StandardShip extends se.space.GameObject {
 	}
 	
 	public void drawInterface(Graphics g,float screenWidth,float screenHeight){
-		System.out.println("STANDARD: HEJSAN!");
+		//System.out.println("STANDARD: HEJSAN!");
 	// TODO Auto-generated method stub
 //		if(this.currentObject.getExp()<100*this.currentObject.getLevel()){
 //			g.setColor(Color.red);
