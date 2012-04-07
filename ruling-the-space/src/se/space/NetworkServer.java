@@ -31,6 +31,10 @@ public class NetworkServer extends Thread {
 		this.start();
 		this.setPriority( NORM_PRIORITY - 4 );
 	} 
+	
+	public int getPlayerid(){
+		return playerid;
+	}
 
 	public static synchronized void setGameObjects(List<Object> o){
 		allObjectsO = o;
@@ -98,9 +102,6 @@ public class NetworkServer extends Thread {
 		}
 	}
 
-	public void exit(){
-		Thread.interrupted();
-	}
 
 
 	class ServerConnection extends Thread {
@@ -461,6 +462,9 @@ public class NetworkServer extends Thread {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		public void exit(){
+			Thread.interrupted();
 		}
 
 	}

@@ -88,255 +88,258 @@ public class World implements Serializable {
 			n = game.getNet();
 		}
 
-		//Needs to be higher than 0, maybe at least 5
-		int timeBeforeNetUpdate = 20;
+		if(n!=null && n.hasJoined){
 
-		if(n!=null && netTime > timeBeforeNetUpdate){
+			//Needs to be higher than 0, maybe at least 5
+			int timeBeforeNetUpdate = 20;
 
-			if(ClientOneTime){
-				//Load Blue+Gray
-				if(n.playerid==1){
-					colorA = Color.blue;
-					colorB = Color.gray;	
-					teamcolorA = "BLUE";
-					teamcolorB = "GRAY";
-					//OWN TEAM
-					colorC = Color.red;
-					teamcolorC = "RED";
-				}
-				//Load Red+Gray
-				else if(n.playerid==2){
-					colorA = Color.red;
-					colorB = Color.gray;	
-					teamcolorA = "RED";
-					teamcolorB = "GRAY";
-					//OWN TEAM
-					colorC = Color.blue;
-					teamcolorC = "BLUE";
-				}
-				//Load Red+Blue
-				else if(n.playerid==3){
-					colorA = Color.red;
-					colorB = Color.blue;
-					teamcolorA = "RED";
-					teamcolorB = "BLUE";
-					//OWN TEAM
-					colorC = Color.gray;
-					teamcolorC = "GRAY";
-				}
-				n.sendObject(new NetworkObject("LOADALLREDGAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
-				n.sendObject(new NetworkObject("LOADALLBLUEGAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
-				n.sendObject(new NetworkObject("LOADALLGRAYGAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
-			}
-			else{
-				//Laddar varrannan gång, för att få bättre prestanda
-				if(teamToLoad==0){
-					n.sendObject(new NetworkObject("LOADALL"+teamcolorA+"GAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
-					teamToLoad = 1;
-				}
-				else if (teamToLoad==1){
-					n.sendObject(new NetworkObject("LOADALL"+teamcolorB+"GAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
-					teamToLoad = 0;
-				}
-			}
-		}
+			if(n!=null && netTime > timeBeforeNetUpdate){
 
-		if(!ServerOneTime && n!=null && n.dataToLoad){
-
-			List<Object> toAdd = n.getResponseArrayAndRemove();
-			//System.out.println("WORLD:"+toAdd);
-
-			List<GameObject> newgameObjects = new ArrayList<GameObject>();
-			ArrayList<Integer> gameObjectsToRemove = new ArrayList<Integer>();
-			int updateingteam = 0;
-			for(Object o : toAdd){
-				Object obj = o;
-				List<Object> go = null;
-				try{
-					go = (List<Object>) obj;
-				}
-				catch(Exception e){
-					//Incorrect message
-					//System.out.println(n.getResponse() + " is not a List");
-				}
-				if(go != null){
-
-					for(Object in : go){
-						try{
-							List<Object> list = (ArrayList) in;
-
-							//System.out.println(in);
-
-							double angle = Double.parseDouble((String) list.get(0).toString());
-							double x = Double.parseDouble((String) list.get(1).toString());
-							double y = Double.parseDouble((String) list.get(2).toString());
-							double movex = Double.parseDouble((String) list.get(3).toString());
-							double movey = Double.parseDouble((String) list.get(4).toString());
-							double speed = Double.parseDouble((String) list.get(5).toString());
-							Team team = ((Team) list.get(11));
-							String type = ((String) list.get(12));
-
-							GameObject gObj = null;
-							//gObj = new GameObject(game.getGameworld(), (int) x, (int) y, Game.IMAGE_PATH + type,Game.IMAGE_PATH + type, (int) speed, team, type);
-							gObj = GameObject.createObject(type, game.getGameworld(), (int)x, (int)y, team);
-							gObj.setAngle((int) angle);
-							gObj.setMoveX(movex);
-							gObj.setMoveY(movey);
-
-
-							if(team.getColor().equals(colorA)){
-								if(teamcolorA.equals("RED")){
-									gObj.setTeam(game.redTeam);
-								}
-								else if(teamcolorA.equals("BLUE")){
-									gObj.setTeam(game.blueTeam);
-								}
-								else if(teamcolorA.equals("GRAY")){
-									gObj.setTeam(game.grayTeam);
-								}
-								updateingteam = 1; //A
-							}
-							else if(team.getColor().equals(colorB)){
-								if(teamcolorB.equals("RED")){
-									gObj.setTeam(game.redTeam);
-								}
-								else if(teamcolorB.equals("BLUE")){
-									gObj.setTeam(game.blueTeam);
-								}
-								else if(teamcolorB.equals("GRAY")){
-									gObj.setTeam(game.grayTeam);
-								}
-								updateingteam = 2; //B
-							}
-							else if(team.getColor().equals(colorC)){
-								if(teamcolorC.equals("RED")){
-									gObj.setTeam(game.redTeam);
-								}
-								else if(teamcolorC.equals("BLUE")){
-									gObj.setTeam(game.blueTeam);
-								}
-								else if(teamcolorC.equals("GRAY")){
-									gObj.setTeam(game.grayTeam);
-								}
-								updateingteam = 3; //C
-								//System.out.println("Speed: "+speed + " Angle:" +angle);
-								//								if(team.getColor().equals(Color.red)){
-								//									gObj.setTeam(game.redTeam);
-								//								}
-							}
-							if(gObj != null){
-								if(updateingteam == 1 && gObj.getTeam().getColor().equals(colorA)){
-									//if(gObj.getTeam().getColor().equals(colorA)){
-									newgameObjects.add(gObj);
-									//gameObjects.remove(gObj);
-								}
-								else if(updateingteam == 2 && gObj.getTeam().getColor().equals(colorB)){
-									newgameObjects.add(gObj);
-									//gameObjects.remove(gObj);
-								}
-								else if(updateingteam == 3 && gObj.getTeam().getColor().equals(colorC)){
-									newgameObjects.add(gObj);
-									//gameObjects.remove(gObj);
-								}
-								for(int i = 0; i < gameObjects.size(); i++){
-									if(updateingteam == 1 && gameObjects.get(i).getTeam().getColor().equals(colorA)){
-										gameObjectsToRemove.add(i);
-									}
-									else if(updateingteam == 2 && gameObjects.get(i).getTeam().getColor().equals(colorB)){
-										gameObjectsToRemove.add(i);
-									}
-									else if(updateingteam == 3 && gameObjects.get(i).getTeam().getColor().equals(colorC)){
-										gameObjectsToRemove.add(i);
-									}
-								}
-
-							}
-
-						}
-						catch(java.lang.ClassCastException e){
-							e.printStackTrace();
-						}
-						if(!newgameObjects.isEmpty()){
-							//System.out.println("New objects loaded");
-						}
+				if(ClientOneTime){
+					//Load Blue+Gray
+					if(n.playerid==1){
+						colorA = Color.blue;
+						colorB = Color.gray;	
+						teamcolorA = "BLUE";
+						teamcolorB = "GRAY";
+						//OWN TEAM
+						colorC = Color.red;
+						teamcolorC = "RED";
 					}
-					//Object obj = n.getResponse();
-					//System.out.println("WORLD"+n.playerid+" DATA RECIEVED: "+obj);
+					//Load Red+Gray
+					else if(n.playerid==2){
+						colorA = Color.red;
+						colorB = Color.gray;	
+						teamcolorA = "RED";
+						teamcolorB = "GRAY";
+						//OWN TEAM
+						colorC = Color.blue;
+						teamcolorC = "BLUE";
+					}
+					//Load Red+Blue
+					else if(n.playerid==3){
+						colorA = Color.red;
+						colorB = Color.blue;
+						teamcolorA = "RED";
+						teamcolorB = "BLUE";
+						//OWN TEAM
+						colorC = Color.gray;
+						teamcolorC = "GRAY";
+					}
+					n.sendObject(new NetworkObject("LOADALLREDGAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
+					n.sendObject(new NetworkObject("LOADALLBLUEGAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
+					n.sendObject(new NetworkObject("LOADALLGRAYGAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
+				}
+				else{
+					//Laddar varrannan gång, för att få bättre prestanda
+					if(teamToLoad==0){
+						n.sendObject(new NetworkObject("LOADALL"+teamcolorA+"GAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
+						teamToLoad = 1;
+					}
+					else if (teamToLoad==1){
+						n.sendObject(new NetworkObject("LOADALL"+teamcolorB+"GAMEOBJECT"+n.playerid,"COMMAND",n.playerid));
+						teamToLoad = 0;
+					}
+				}
+			}
+
+			if(!ServerOneTime && n!=null && n.dataToLoad){
+
+				List<Object> toAdd = n.getResponseArrayAndRemove();
+				//System.out.println("WORLD:"+toAdd);
+
+				List<GameObject> newgameObjects = new ArrayList<GameObject>();
+				ArrayList<Integer> gameObjectsToRemove = new ArrayList<Integer>();
+				int updateingteam = 0;
+				for(Object o : toAdd){
+					Object obj = o;
+					List<Object> go = null;
+					try{
+						go = (List<Object>) obj;
+					}
+					catch(Exception e){
+						//Incorrect message
+						//System.out.println(n.getResponse() + " is not a List");
+					}
+					if(go != null){
+
+						for(Object in : go){
+							try{
+								List<Object> list = (ArrayList) in;
+
+								//System.out.println(in);
+
+								double angle = Double.parseDouble((String) list.get(0).toString());
+								double x = Double.parseDouble((String) list.get(1).toString());
+								double y = Double.parseDouble((String) list.get(2).toString());
+								double movex = Double.parseDouble((String) list.get(3).toString());
+								double movey = Double.parseDouble((String) list.get(4).toString());
+								double speed = Double.parseDouble((String) list.get(5).toString());
+								Team team = ((Team) list.get(11));
+								String type = ((String) list.get(12));
+
+								GameObject gObj = null;
+								//gObj = new GameObject(game.getGameworld(), (int) x, (int) y, Game.IMAGE_PATH + type,Game.IMAGE_PATH + type, (int) speed, team, type);
+								gObj = GameObject.createObject(type, game.getGameworld(), (int)x, (int)y, team);
+								gObj.setAngle((int) angle);
+								gObj.setMoveX(movex);
+								gObj.setMoveY(movey);
+
+
+								if(team.getColor().equals(colorA)){
+									if(teamcolorA.equals("RED")){
+										gObj.setTeam(game.redTeam);
+									}
+									else if(teamcolorA.equals("BLUE")){
+										gObj.setTeam(game.blueTeam);
+									}
+									else if(teamcolorA.equals("GRAY")){
+										gObj.setTeam(game.grayTeam);
+									}
+									updateingteam = 1; //A
+								}
+								else if(team.getColor().equals(colorB)){
+									if(teamcolorB.equals("RED")){
+										gObj.setTeam(game.redTeam);
+									}
+									else if(teamcolorB.equals("BLUE")){
+										gObj.setTeam(game.blueTeam);
+									}
+									else if(teamcolorB.equals("GRAY")){
+										gObj.setTeam(game.grayTeam);
+									}
+									updateingteam = 2; //B
+								}
+								else if(team.getColor().equals(colorC)){
+									if(teamcolorC.equals("RED")){
+										gObj.setTeam(game.redTeam);
+									}
+									else if(teamcolorC.equals("BLUE")){
+										gObj.setTeam(game.blueTeam);
+									}
+									else if(teamcolorC.equals("GRAY")){
+										gObj.setTeam(game.grayTeam);
+									}
+									updateingteam = 3; //C
+									//System.out.println("Speed: "+speed + " Angle:" +angle);
+									//								if(team.getColor().equals(Color.red)){
+									//									gObj.setTeam(game.redTeam);
+									//								}
+								}
+								if(gObj != null){
+									if(updateingteam == 1 && gObj.getTeam().getColor().equals(colorA)){
+										//if(gObj.getTeam().getColor().equals(colorA)){
+										newgameObjects.add(gObj);
+										//gameObjects.remove(gObj);
+									}
+									else if(updateingteam == 2 && gObj.getTeam().getColor().equals(colorB)){
+										newgameObjects.add(gObj);
+										//gameObjects.remove(gObj);
+									}
+									else if(updateingteam == 3 && gObj.getTeam().getColor().equals(colorC)){
+										newgameObjects.add(gObj);
+										//gameObjects.remove(gObj);
+									}
+									for(int i = 0; i < gameObjects.size(); i++){
+										if(updateingteam == 1 && gameObjects.get(i).getTeam().getColor().equals(colorA)){
+											gameObjectsToRemove.add(i);
+										}
+										else if(updateingteam == 2 && gameObjects.get(i).getTeam().getColor().equals(colorB)){
+											gameObjectsToRemove.add(i);
+										}
+										else if(updateingteam == 3 && gameObjects.get(i).getTeam().getColor().equals(colorC)){
+											gameObjectsToRemove.add(i);
+										}
+									}
+
+								}
+
+							}
+							catch(java.lang.ClassCastException e){
+								e.printStackTrace();
+							}
+							if(!newgameObjects.isEmpty()){
+								//System.out.println("New objects loaded");
+							}
+						}
+						//Object obj = n.getResponse();
+						//System.out.println("WORLD"+n.playerid+" DATA RECIEVED: "+obj);
+					}
+
+
+
+
+					n.dataToLoad = false;
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 
+				ClientOneTime = false;
+				gameObjects = removeElements(gameObjects,gameObjectsToRemove);
+				gameObjects.addAll(newgameObjects);
+
+			}
 
 
+			//System.out.println("CLIENT"+isClient);
+			if(n != null && netTime > timeBeforeNetUpdate){
 
-				n.dataToLoad = false;
+				//Send blue team to server
 				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+					List<Object> l = new ArrayList<Object>();
+					List<Object> red = new ArrayList<Object>();
+					List<Object> blue = new ArrayList<Object>();
+					List<Object> gray = new ArrayList<Object>();
+
+					for(GameObject gObj : gameObjects){
+						List<Object> tmpList = new ArrayList<Object>();
+						tmpList = gObj.getNetGameObject();
+						Team team = ((Team) tmpList.get(11));
+
+						if((ServerOneTime || n.playerid==1) && team.getColor().equals(Color.red)){
+							red.add(tmpList);
+						}
+						else if((ServerOneTime || n.playerid==2) && team.getColor().equals(Color.blue)){
+							blue.add(tmpList);
+						}
+						else if((ServerOneTime || n.playerid==3) && team.getColor().equals(Color.gray)){
+							gray.add(tmpList);
+						}
+
+					}
+
+					//System.out.println("SET:"+ServerOneTime);
+					if(ServerOneTime){
+						n.sendObject(new NetworkObject("ADDRED"+n.playerid, red,n.playerid));
+						n.sendObject(new NetworkObject("ADDBLUE"+n.playerid, blue,n.playerid));
+						n.sendObject(new NetworkObject("ADDGRAY"+n.playerid, gray,n.playerid));
+						ServerOneTime=false;
+					}
+					else if(n.playerid==1&&!ClientOneTime){
+						n.sendObject(new NetworkObject("ADDRED"+n.playerid, red,n.playerid));
+					}
+					else if(n.playerid==2&&!ClientOneTime){
+						n.sendObject(new NetworkObject("ADDBLUE"+n.playerid, blue,n.playerid));
+					}
+					else if(n.playerid==3&&!ClientOneTime){
+						n.sendObject(new NetworkObject("ADDGRAY"+n.playerid, gray,n.playerid));
+					}
+				}catch(Exception e){
 					e.printStackTrace();
 				}
+
+
+				netTime = 0;
 			}
 
-			ClientOneTime = false;
-			gameObjects = removeElements(gameObjects,gameObjectsToRemove);
-			gameObjects.addAll(newgameObjects);
-
+			netTime++;
 		}
-
-
-		//System.out.println("CLIENT"+isClient);
-		if(n != null && netTime > timeBeforeNetUpdate){
-
-			//Send blue team to server
-			try {
-				List<Object> l = new ArrayList<Object>();
-				List<Object> red = new ArrayList<Object>();
-				List<Object> blue = new ArrayList<Object>();
-				List<Object> gray = new ArrayList<Object>();
-
-				for(GameObject gObj : gameObjects){
-					List<Object> tmpList = new ArrayList<Object>();
-					tmpList = gObj.getNetGameObject();
-					Team team = ((Team) tmpList.get(11));
-
-					if((ServerOneTime || n.playerid==1) && team.getColor().equals(Color.red)){
-						red.add(tmpList);
-					}
-					else if((ServerOneTime || n.playerid==2) && team.getColor().equals(Color.blue)){
-						blue.add(tmpList);
-					}
-					else if((ServerOneTime || n.playerid==3) && team.getColor().equals(Color.gray)){
-						gray.add(tmpList);
-					}
-
-				}
-
-				//System.out.println("SET:"+ServerOneTime);
-				if(ServerOneTime){
-					n.sendObject(new NetworkObject("ADDRED"+n.playerid, red,n.playerid));
-					n.sendObject(new NetworkObject("ADDBLUE"+n.playerid, blue,n.playerid));
-					n.sendObject(new NetworkObject("ADDGRAY"+n.playerid, gray,n.playerid));
-					ServerOneTime=false;
-				}
-				else if(n.playerid==1&&!ClientOneTime){
-					n.sendObject(new NetworkObject("ADDRED"+n.playerid, red,n.playerid));
-				}
-				else if(n.playerid==2&&!ClientOneTime){
-					n.sendObject(new NetworkObject("ADDBLUE"+n.playerid, blue,n.playerid));
-				}
-				else if(n.playerid==3&&!ClientOneTime){
-					n.sendObject(new NetworkObject("ADDGRAY"+n.playerid, gray,n.playerid));
-				}
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-
-
-			netTime = 0;
-		}
-
-		netTime++;
 	}
-	
+
 	public void moveScreenToUnit(GameObject g){
 		float x = (float)-(g.getxPos()-game.getWorldView().getScreenSize().width/2);
 		float y = (float)-(g.getyPos()-game.getWorldView().getScreenSize().height/2+50);
