@@ -30,6 +30,8 @@ public class MainMenu {
 
 	public Rectangle Area;
 	private Lobby lobby;
+	
+	private Game game;
 
 	//Network
 	private boolean isRunning = false;
@@ -37,12 +39,14 @@ public class MainMenu {
 	private int lobbyPortNr = 15000;
 	private String ipToConnect;
 	private NetworkClient n;
-	NetworkServer server;
+	private NetworkServer server;
 	private int netTime = 0;
 	private String nick;
 
 	public MainMenu(Game game, World gameWorld, View worldView,NetworkClient net) {
 		n=net;
+		this.game = game;
+		
 		screenSize = worldView.getScreenSize();
 		buttons = new HashMap<String,Rectangle>();
 		MenuItems = new LinkedList<String>();
@@ -309,7 +313,7 @@ public class MainMenu {
 
 						try {
 							//Skapar en ny server
-							server = new NetworkServer(lobbyPortNr);
+							server = new NetworkServer(lobbyPortNr,game);
 
 							//Väntar på att servern ska starta
 							Thread.sleep(500);
@@ -317,6 +321,9 @@ public class MainMenu {
 							//Joinar server som nu skapats
 							n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr));
 
+							//Resetar world (krävs ifall servern körts tidigare)
+							game.getGameworld().restartWorldNetwork(n);
+							
 						} catch (Exception e1) {
 							System.out.println("Exception " + e1);
 						}
@@ -350,11 +357,12 @@ public class MainMenu {
 					}
 					n.hasJoined = false;
 					hasJoined = false;
-					isRunning = false;
 					n.closeConnectionToServer();
 					n = null;
 					Game.setNet(n);
-					server = null;
+					
+					isRunning = false;
+					server.disconnect();
 
 				}
 			}

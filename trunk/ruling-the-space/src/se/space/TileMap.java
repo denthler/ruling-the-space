@@ -131,7 +131,7 @@ public class TileMap {
 						tempObj = new StandardShip(world,x,y,imgPath,speed,t,type);
 						tempObj.setHealth(health);
 					}
-					
+
 					else if(type.equals("spacestation.png")){
 						tempObj =  new Spacestation(world,x,y,imgPath,speed,t,type);
 						tempObj.setHealth(health);
@@ -151,17 +151,27 @@ public class TileMap {
 			}
 		}
 		catch(IOException e){}
-		
+
 		game.blueTeam.resetGold();
 		game.redTeam.resetGold();
 		game.grayTeam.resetGold();
-		
+
 		game.resetVictoryCondition();
-		
-		
+
+
 		game.setSelectedObjects(null);
 		game.setSelectMode(false);
 		game.setDoubleClick(false);
+
+		//Generate new ids for objects when loading
+		if(game.isServer()){
+			int i = 0;
+
+			for(GameObject go : game.getGameworld().getGameObjects()){
+				go.setid(i);
+				i++;
+			}
+		}
 	}
 	public Tile[][] getTiles(){
 		return list;
@@ -258,7 +268,7 @@ public class TileMap {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			file = fc.getSelectedFile();
 			loadThis(file.getPath());
-			
+
 		}
 		fc = null;
 		//test.setVisible(false);

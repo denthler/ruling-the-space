@@ -169,19 +169,21 @@ public class World implements Serializable {
 
 								//System.out.println(in);
 
-								double angle = Double.parseDouble((String) list.get(0).toString());
-								double x = Double.parseDouble((String) list.get(1).toString());
-								double y = Double.parseDouble((String) list.get(2).toString());
-								double movex = Double.parseDouble((String) list.get(3).toString());
-								double movey = Double.parseDouble((String) list.get(4).toString());
-								double curspeed = Double.parseDouble((String) list.get(5).toString());
-								Team team = ((Team) list.get(11));
-								String type = ((String) list.get(12));
+								int id = Integer.parseInt((String) list.get(0).toString());
+								double angle = Double.parseDouble((String) list.get(1).toString());
+								double x = Double.parseDouble((String) list.get(2).toString());
+								double y = Double.parseDouble((String) list.get(3).toString());
+								double movex = Double.parseDouble((String) list.get(4).toString());
+								double movey = Double.parseDouble((String) list.get(5).toString());
+								double curspeed = Double.parseDouble((String) list.get(6).toString());
+								Team team = ((Team) list.get(12));
+								String type = ((String) list.get(13));
 
 								GameObject gObj = null;
 								//gObj = new GameObject(game.getGameworld(), (int) x, (int) y, Game.IMAGE_PATH + type,Game.IMAGE_PATH + type, (int) speed, team, type);
 								gObj = GameObject.createObject(type, game.getGameworld(), (int)x, (int)y, team);
-								gObj.setCurSpeed(curspeed); 
+								gObj.setid(id);
+								gObj.setCurSpeed(curspeed);
 								gObj.setAngle((int) angle);
 								gObj.setMoveX(movex);
 								gObj.setMoveY(movey);
@@ -299,7 +301,7 @@ public class World implements Serializable {
 					for(GameObject gObj : gameObjects){
 						List<Object> tmpList = new ArrayList<Object>();
 						tmpList = gObj.getNetGameObject();
-						Team team = ((Team) tmpList.get(11));
+						Team team = ((Team) tmpList.get(12));
 
 						if((ServerOneTime || n.playerid==1) && team.getColor().equals(Color.red)){
 							red.add(tmpList);
@@ -458,5 +460,11 @@ public class World implements Serializable {
 	}
 	public Game getGame() {
 		return game;
+	}
+	public void restartWorldNetwork(NetworkClient nc){
+		setServer(true);
+		ClientOneTime = true;
+		ClientOneTime2 = true;
+		n = nc;
 	}
 }
