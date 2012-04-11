@@ -174,13 +174,14 @@ public class World implements Serializable {
 								double y = Double.parseDouble((String) list.get(2).toString());
 								double movex = Double.parseDouble((String) list.get(3).toString());
 								double movey = Double.parseDouble((String) list.get(4).toString());
-								double speed = Double.parseDouble((String) list.get(5).toString());
+								double curspeed = Double.parseDouble((String) list.get(5).toString());
 								Team team = ((Team) list.get(11));
 								String type = ((String) list.get(12));
 
 								GameObject gObj = null;
 								//gObj = new GameObject(game.getGameworld(), (int) x, (int) y, Game.IMAGE_PATH + type,Game.IMAGE_PATH + type, (int) speed, team, type);
 								gObj = GameObject.createObject(type, game.getGameworld(), (int)x, (int)y, team);
+								gObj.setCurSpeed(curspeed); 
 								gObj.setAngle((int) angle);
 								gObj.setMoveX(movex);
 								gObj.setMoveY(movey);

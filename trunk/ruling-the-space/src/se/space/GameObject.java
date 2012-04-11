@@ -353,7 +353,7 @@ public class GameObject implements Serializable {
 		net.add(yPos);
 		net.add(moveX);
 		net.add(moveY);
-		net.add(speed);
+		net.add(curSpeed);
 		net.add(exp);
 		net.add(getMaxHealth());
 		net.add(health);
