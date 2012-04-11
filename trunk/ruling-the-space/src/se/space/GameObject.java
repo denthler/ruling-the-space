@@ -28,7 +28,7 @@ public class GameObject implements Serializable {
 	private double angle=0;
 	protected double xPos;
 	protected double yPos;
-	private double moveX,moveY,speed=0;
+	private double moveX,moveY,speed=0,curSpeed=0;
 	protected int exp=0;
 	private int maxHealth=200;
 	protected int health=200;
@@ -182,8 +182,8 @@ public class GameObject implements Serializable {
 				if((getyPos()-getMoveY())>0&&(getxPos()-getMoveX())>0){
 					angle+=Math.PI;
 				}
-				setxPos(getxPos()+Math.cos(angle)*getSpeed());
-				setyPos(getyPos()+Math.sin(angle)*getSpeed());
+				setxPos(getxPos()+Math.cos(angle)*getCurSpeed());
+				setyPos(getyPos()+Math.sin(angle)*getCurSpeed());
 			}
 		}
 		fireAt=null;
@@ -207,6 +207,20 @@ public class GameObject implements Serializable {
 		}
 
 	}
+	public double getCurSpeed() {
+		// TODO Auto-generated method stub
+		return curSpeed;
+	}
+	
+	public void setCurSpeed(double cspeed) {
+		// TODO Auto-generated method stub
+		
+		//Check if less than maxspeed
+		if(cspeed<=speed){
+			curSpeed = cspeed;
+		}
+	}
+	
 	public void damage(int dmg){
 		setExp(getExp() + 1);
 		int random=(int) (Math.random()*100);

@@ -156,6 +156,8 @@ public class TileMap {
 		game.redTeam.resetGold();
 		game.grayTeam.resetGold();
 		
+		game.resetVictoryCondition();
+		
 		
 		game.setSelectedObjects(null);
 		game.setSelectMode(false);

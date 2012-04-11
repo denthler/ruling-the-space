@@ -72,6 +72,7 @@ public class Spacestation extends se.space.GameObject {
 				if(t.isDone()){
 					GameObject tempObj;
 					tempObj = GameObject.createObject(s, this.world, this.getX(), this.getY(), this.getTeam());
+					tempObj.setCurSpeed(tempObj.getSpeed());
 					tempObj.move((int)this.getMoveX(),(int)this.getMoveY());
 					this.build(tempObj, 10000);
 					t.reset();

@@ -533,8 +533,10 @@ public class Game extends BasicGame implements Serializable
 				getWorldView().setCurrentViewLocation(new Point2D.Float(fxpos,fypos));*/
 				int spaceX=0,spaceY=0;
 				if(this.getSelectedObjects()!=null){
+					double curmaxspeed = getMinSpeed(this.getSelectedObjects());
 					for(GameObject ob : this.getSelectedObjects()){
 						int offset=(int) (Math.sqrt(getSelectedObjects().size())*50)-25;
+						ob.setCurSpeed(curmaxspeed);
 						ob.move(xpos+spaceX-offset/2,ypos+spaceY-offset/2);
 						spaceX+=50;
 						if(spaceX>offset){
@@ -546,9 +548,11 @@ public class Game extends BasicGame implements Serializable
 			}
 			else if(isHost && !editMode){
 				int spaceX=0,spaceY=0;
-				if(this.getSelectedObjects()!=null)
+				if(this.getSelectedObjects()!=null){
+					double curmaxspeed = getMinSpeed(this.getSelectedObjects());
 					for(GameObject ob : this.getSelectedObjects()){
 						int offset=(int) (Math.sqrt(getSelectedObjects().size())*50)-25;
+						ob.setCurSpeed(curmaxspeed);
 						ob.move(mouseWorldX+spaceX-offset/2,mouseWorldY+spaceY-offset/2);
 						spaceX+=50;
 						if(spaceX>offset){
@@ -556,6 +560,7 @@ public class Game extends BasicGame implements Serializable
 							spaceX=0;
 						}
 					}
+				}
 			}
 			else if(editMode){
 				Rectangle rct = new Rectangle(mouseWorldX,mouseWorldY,1,1);
@@ -714,6 +719,10 @@ public class Game extends BasicGame implements Serializable
 			e.printStackTrace();
 		}
 	}
+	public void resetVictoryCondition(){
+		victory=false;
+		defeat=false;
+	}
 	public void setSelectedObjects(List<GameObject> selectedObjects) {
 		this.selectedObjects = selectedObjects;
 	}
@@ -746,5 +755,16 @@ public class Game extends BasicGame implements Serializable
 	}
 	public World getGameworld(){
 		return gameWorld;
+	}
+	public double getMinSpeed(List<GameObject> gameobjects){
+		double minspeed=Double.MAX_VALUE;
+		for(GameObject go : gameobjects){
+			if(go.isShip()){
+				if(minspeed>go.getSpeed()){
+					minspeed = go.getSpeed();
+				}
+			}
+		}
+		return minspeed;
 	}
 }
