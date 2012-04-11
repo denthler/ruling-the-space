@@ -25,6 +25,7 @@ public class GameObject implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private int id;
 	private double angle=0;
 	protected double xPos;
 	protected double yPos;
@@ -348,6 +349,7 @@ public class GameObject implements Serializable {
 
 	public List<Object> getNetGameObject(){
 		List<Object> net = new	ArrayList<Object>();
+		net.add(id);
 		net.add(angle);
 		net.add(xPos);
 		net.add(yPos);
@@ -364,6 +366,12 @@ public class GameObject implements Serializable {
 		net.add(fireAt);
 		net.add(alive);
 		return net;
+	}
+	public void setid(int newid){
+		id = newid;
+	}
+	public int getid(){
+		return id;
 	}
 	public void setLevel(int level) {
 		this.level = level;

@@ -152,6 +152,11 @@ public class Game extends BasicGame implements Serializable
 		input = container.getInput();
 		gameWorld = new World(this, new Dimension(2000, 2000));
 		setWorldView(new View(gameWorld, screenSize));
+
+		lobby = new Lobby();
+		menu = new MainMenu(this,gameWorld,getWorldView(),n);
+		menu.setLobby(lobby);
+		
 		tiles = new TileMap(this, gameWorld, getWorldView(),"maps/default.map");
 		minimap = new Minimap(this, gameWorld, getWorldView());
 
@@ -166,9 +171,6 @@ public class Game extends BasicGame implements Serializable
 		gameWorld.init(gui);
 		gameWorld.update(0);
 		//lobby = new Lobby(this,gameWorld,getWorldView());
-		lobby = new Lobby();
-		menu = new MainMenu(this,gameWorld,getWorldView(),n);
-		menu.setLobby(lobby);
 		dragSelect=new Point();
 		
 		
@@ -314,15 +316,8 @@ public class Game extends BasicGame implements Serializable
 			//try {
 				//int sleepTime = 150;
 				input.disableKeyRepeat();
-				for(int i = 0; i < 10; i++){
-					if(input.isKeyPressed(i) && !added){
-						menu.addIp("" + Input.getKeyName(i));
-						added = true;
-						//Thread.sleep(sleepTime);
-						break;
-					}
-				}
-				for(int i = 10; i < 200; i++){
+
+				for(int i = 0; i < 200; i++){
 					if(input.isKeyPressed(i) && !added){
 						if(Input.getKeyName(i).equals("PERIOD")){
 							menu.addIp(".");
@@ -332,11 +327,15 @@ public class Game extends BasicGame implements Serializable
 							menu.addIp("-");
 							//Thread.sleep(sleepTime);
 						}
+						else if(Input.getKeyName(i).equals("UNDERLINE")){
+							menu.addIp("_");
+							//Thread.sleep(sleepTime);
+						}
 						else if(Input.getKeyName(i).equals("RETURN")){
 							menu.join();
 							//Thread.sleep(sleepTime);
 						}
-						else{
+						else if(Input.getKeyName(i).matches("(\\w|\\d)") || Input.getKeyName(i).equals("BACK")){
 							menu.addIp("" + Input.getKeyName(i));
 							//Thread.sleep(sleepTime);
 						}
@@ -368,6 +367,14 @@ public class Game extends BasicGame implements Serializable
 		if(menu.isNetworkServerRunning()){
 			gameWorld.setServer(true);
 			gameWorld.setClient(false);
+
+			int i = 0;
+			
+			for(GameObject go : getGameworld().getGameObjects()){
+				go.setid(i);
+				i++;
+			}
+			
 		}
 		
 		/*if(menu.hasJoined() && menu.isNetworkServerRunning() && !runOnce){
@@ -741,11 +748,29 @@ public class Game extends BasicGame implements Serializable
 	public Team getMyTeam() {
 		return myTeam;
 	}
+	public Team getTeam(Color c){
+		if(c.equals(Color.blue)){
+			return blueTeam;
+		}
+		else if(c.equals(Color.red)){
+			return redTeam;
+		}
+		else if(c.equals(Color.gray)){
+			return grayTeam;
+		}
+		return null;
+	}
 	public void setServer(boolean s){
 		menu.setServer(s);
 	}
 	public void setClient(boolean c){
 		menu.setClient(c);
+	}
+	public boolean isClient(){
+		return menu.isClient();
+	}
+	public boolean isServer(){
+		return menu.isServer();
 	}
 	public static void setNet(NetworkClient client){
 		n = client;

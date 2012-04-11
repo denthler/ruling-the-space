@@ -4,6 +4,8 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
+import org.newdawn.slick.Color;
+
 public class NetworkServer extends Thread {
 
 	private ServerSocket gameServer;
@@ -16,40 +18,50 @@ public class NetworkServer extends Thread {
 	//private static List<GameObject> objectsToAdd;
 	//private static List<GameObject> allObjects;
 
-	public static List<Object> allObjectsO;
-	public static List<Object> objectsToAddO;
+	public static List<Object> allObjects;
+	public static List<Object> objectsToAdd;
 
 	public static List<Object> allObjectsBlue;
 	public static List<Object> allObjectsRed;
 	public static List<Object> allObjectsGray;
+	
+	private static Game game;
+	
+	private static boolean disconnect;
 
-	public NetworkServer(int portnr) throws Exception {
+	public NetworkServer(int portnr, Game game) throws Exception {
 		//objectsToAdd = new ArrayList<GameObject>();
 		//allObjects = new ArrayList<GameObject>();
 		gameServer = new ServerSocket(portnr);
 		System.out.println("Server listening on " + portnr);
+
+		//Set ids for all objects
+		this.game = game;
+		
+		disconnect=false;
+
 		this.start();
 		this.setPriority( NORM_PRIORITY - 4 );
 	} 
-	
+
 	public int getPlayerid(){
 		return playerid;
 	}
 
 	public static synchronized void setGameObjects(List<Object> o){
-		allObjectsO = o;
+		allObjects = o;
 	}
 
 	public static synchronized List<Object> getGameObjects(){
-		return allObjectsO;
+		return allObjects;
 	}
 
 	public static synchronized void addTeamGameObjects(List<Object> o){
-		allObjectsO.addAll(o);
+		allObjects.addAll(o);
 	}
 
 	public static synchronized void resetTeamGameObjects(){
-		allObjectsO = new ArrayList<Object>();
+		allObjects = new ArrayList<Object>();
 	}
 
 	public static synchronized void setBlueGameObjects(List<Object> o){
@@ -77,15 +89,85 @@ public class NetworkServer extends Thread {
 	}
 
 	public static synchronized void setObjectsToAdd(List<Object> o){
-		objectsToAddO = o;
+		objectsToAdd = o;
 	}
 
 	public static synchronized List<Object> getObjectsToAdd(){
-		return objectsToAddO;
+		return objectsToAdd;
+	}
+
+	/**
+	 * Change owner of GameObject
+	 * @param objectandnewcolor List with "One gameObject", "Color of new team"
+	 */
+	public static synchronized void setOwner(List<Object> objectandnewcolor){
+		GameObject goToChange = (GameObject) objectandnewcolor.get(0);
+		Color newTeamColor = (Color) objectandnewcolor.get(1);
+		
+		Color curTeamColor = goToChange.getTeam().getColor();
+
+		int id = goToChange.getid();
+		
+		GameObject newGameObject = null;
+
+		if(curTeamColor.equals(Color.blue)){
+			for(int i=0; i<allObjectsBlue.size();i++){
+				GameObject go = (GameObject) allObjectsBlue.get(i);
+				if(id==go.getid()){
+					go.setTeam(game.getTeam(newTeamColor));
+					newGameObject = go;
+					allObjectsBlue.remove(i);
+					break;
+				}
+			}
+		}
+		else if(curTeamColor.equals(Color.red)){
+			for(int i=0; i<allObjectsRed.size();i++){
+				GameObject go = (GameObject) allObjectsRed.get(i);
+				if(id==go.getid()){
+					go.setTeam(game.getTeam(newTeamColor));
+					newGameObject = go;
+					allObjectsRed.remove(i);
+					break;
+				}
+			}
+		}
+		else if(curTeamColor.equals(Color.gray)){
+			for(int i=0; i<allObjectsGray.size();i++){
+				GameObject go = (GameObject) allObjectsGray.get(i);
+				if(id==go.getid()){
+					go.setTeam(game.getTeam(newTeamColor));
+					newGameObject = go;
+					allObjectsGray.remove(i);
+					break;
+				}
+			}
+		}
+		
+		if(newTeamColor.equals(Color.blue)){
+			allObjectsBlue.add(newGameObject);
+		}
+		else if(newTeamColor.equals(Color.red)){
+			allObjectsRed.add(newGameObject);
+		}
+		else if(newTeamColor.equals(Color.gray)){
+			allObjectsGray.add(newGameObject);
+		}
+		
+	}
+	
+	public void disconnect(){
+		try {
+			disconnect=true;
+			gameServer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void run() {
-		while(true) {
+		while(disconnect==false) {
 			try {
 				System.out.println("Waiting for connections.");
 				Socket client = gameServer.accept();
@@ -96,8 +178,12 @@ public class NetworkServer extends Thread {
 				new Thread(server).start();
 				System.out.println("Connection accepted "+playerid);
 			}
+			catch(SocketException e){
+				break;
+			}
 			catch(Exception e){
-				System.out.println("__ " + e);
+				System.out.println("__ ");
+				e.printStackTrace();
 			}
 		}
 	}
@@ -137,7 +223,7 @@ public class NetworkServer extends Thread {
 				o = null;
 			}
 			catch (ArrayIndexOutOfBoundsException e){
-				System.out.println("Arrray Error");
+				System.out.println("Array Error");
 				e.printStackTrace();
 				o = null;
 			}
@@ -167,6 +253,9 @@ public class NetworkServer extends Thread {
 									System.out.println("Server"+pid+" World recevied");
 									savedWorld = hm;
 								}
+							}
+							else if(netobj.getString().indexOf("SETOWNER"+pid) != -1){
+								setOwner(((List<Object>) netobj.getObject()));
 							}
 							else if(netobj.getString().indexOf("ADDALL"+pid) != -1){
 
@@ -448,23 +537,22 @@ public class NetworkServer extends Thread {
 				e1.printStackTrace();
 			}
 
-			while (connection) {
+			while (connection&&!disconnect) {
 				loop();
 			}
 
 			// Disconnect (and ID) client
 			System.out.println(client.toString()); 
 			System.out.println( "Disconnecting... ");
-
+			
 			try {
+				//oos.close();
+				ois.close();
 				client.close();
-			} catch (IOException e) {
+			} catch (IOException e1) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e1.printStackTrace();
 			}
-		}
-		public void exit(){
-			Thread.interrupted();
 		}
 
 	}
