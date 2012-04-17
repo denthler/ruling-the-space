@@ -11,12 +11,13 @@ public class NetworkClient extends Thread {
 	private ObjectOutputStream oos = null;
 	//private BufferedOutputStream boos;
 	//private BufferedInputStream bois;
-	private Object msg;
+	//private Object msg;
 	private Object receivedResponese;
 	private List<Object> receivedResponeseA = new ArrayList<Object>();
 	public int playerid = 0;
 	public boolean hasJoined = false;
 	public boolean dataToLoad = false;
+	Game game;
 
 //	public NetworkClient(Socket clientSocket, Object msgtosend) {
 //		client = clientSocket;
@@ -48,8 +49,9 @@ public class NetworkClient extends Thread {
 //		setPriority( MIN_PRIORITY );
 //	}
 
-	public NetworkClient(Socket clientSocket) {
+	public NetworkClient(Socket clientSocket, Game game) {
 		client = clientSocket;
+		this.game = game;
 		
 		try {
 			//client.setSoTimeout(1000);
@@ -76,7 +78,7 @@ public class NetworkClient extends Thread {
 	public void closeConnectionToServer(){
 		try {
 			// close streams and connections
-			oos.writeObject(new NetworkObject("DISCONNECT"+playerid,null,playerid));
+			//oos.writeObject(new NetworkObject("DISCONNECT"+playerid,null,playerid));
 			oos.flush();
 			ois.close();
 			oos.close();
@@ -90,6 +92,7 @@ public class NetworkClient extends Thread {
 
 	public void sendObject(Object o){
 		try {
+			if(client!=null){
 			//oos = new ObjectOutputStream(client.getOutputStream());
 			//ois = new ObjectInputStream(client.getInputStream());
 			//oos.reset();
@@ -146,6 +149,7 @@ public class NetworkClient extends Thread {
 					String[] s = receivedResponese.toString().split(" ");
 					playerid = Integer.parseInt(s[1]);
 					hasJoined=true;
+					game.getMyTeam().resetGold();
 				}
 				else if(receivedResponese.toString().contains("Busy")){
 					hasJoined=false;
@@ -159,10 +163,14 @@ public class NetworkClient extends Thread {
 			//ois.close();
 			//oos.close();
 			oos.reset();
-
+			}
 		}
 		catch (SocketException e){
 			System.out.println("Disconnected?");
+			hasJoined = false;
+			game.setJoined(false);
+			game.setIsClient(false);
+			Game.setNet(null);
 			
 		}
 		catch (IOException e) {

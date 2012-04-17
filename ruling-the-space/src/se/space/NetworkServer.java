@@ -177,6 +177,8 @@ public class NetworkServer extends Thread {
 				ServerConnection server = new ServerConnection(client,playerid);
 				new Thread(server).start();
 				System.out.println("Connection accepted "+playerid);
+				game.blueTeam.resetGold();
+				game.getMyTeam().resetGold();
 			}
 			catch(SocketException e){
 				break;
