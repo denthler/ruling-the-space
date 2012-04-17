@@ -45,7 +45,6 @@ public class Game extends BasicGame implements Serializable
 	/**
 	 * 
 	 */
-	//TEST
 
 	private Robot robot;
 	private boolean useRobot = false;

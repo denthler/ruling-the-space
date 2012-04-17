@@ -217,33 +217,33 @@ public class TileMap {
 		}
 
 	}
-	public void drawMap(Game game, World world, View worldView){
-		this.game= 		game;
-		this.world= 	world;
-		this.worldView=	worldView;
-		try {
-			cachedImage = new Image(world.getWidth() + 20 * 2, world.getHeight()-150 + 20 * 2);
-			Graphics g = cachedImage.getGraphics();
-
-			int numTilesX = world.getWidth() / 20+10;
-			int numTilesY = world.getHeight() / 20+10;
-			list= new Tile[numTilesX][numTilesY];
-
-
-			for(int yPos = 0; yPos < numTilesY; yPos++) {
-				for(int xPos = 0; xPos < numTilesX; xPos++) {
-					int rand = (int) (Math.random()*3)+1;
-					list[xPos][yPos]=new Tile(Game.IMAGE_PATH + "groundTile"+rand+".png",xPos,yPos);
-					g.drawImage(sprite.get(Game.IMAGE_PATH + "groundTile"+rand+".png"), xPos * 20, yPos * 20);
-				}
-			}
-
-			g.flush();
-		} catch(SlickException ex) {
-			System.out.println("Could not create image for drawing tiles.");
-			ex.printStackTrace();
-		}
-	}
+//	public void drawMap(Game game, World world, View worldView){
+//		this.game= 		game;
+//		this.world= 	world;
+//		this.worldView=	worldView;
+//		try {
+//			cachedImage = new Image(world.getWidth() + 20 * 2, world.getHeight()-150 + 20 * 2);
+//			Graphics g = cachedImage.getGraphics();
+//
+//			int numTilesX = world.getWidth() / 20+10;
+//			int numTilesY = world.getHeight() / 20+10;
+//			list= new Tile[numTilesX][numTilesY];
+//
+//
+//			for(int yPos = 0; yPos < numTilesY; yPos++) {
+//				for(int xPos = 0; xPos < numTilesX; xPos++) {
+//					int rand = (int) (Math.random()*3)+1;
+//					list[xPos][yPos]=new Tile(Game.IMAGE_PATH + "groundTile"+rand+".png",xPos,yPos);
+//					g.drawImage(sprite.get(Game.IMAGE_PATH + "groundTile"+rand+".png"), xPos * 20, yPos * 20);
+//				}
+//			}
+//
+//			g.flush();
+//		} catch(SlickException ex) {
+//			System.out.println("Could not create image for drawing tiles.");
+//			ex.printStackTrace();
+//		}
+//	}
 	private class FFilter extends FileFilter {
 
 		//Accept all directories and all gif, jpg, tiff, or png files.
@@ -330,6 +330,9 @@ public class TileMap {
 				try {
 					bw = new BufferedWriter(new FileWriter(file));
 					//					write tiles
+					//TODO Changeable within game.
+					bw.write("" + (int) world.getWorldSize().getWidth() + "\n");
+					bw.write("" + (int) world.getWorldSize().getHeight() + "\n");
 					for(Tile[] tempList : tileList){
 						for(Tile  tempTile: tempList){
 							if(tempTile!=null)
