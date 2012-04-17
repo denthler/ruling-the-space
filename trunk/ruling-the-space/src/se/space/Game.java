@@ -47,6 +47,8 @@ public class Game extends BasicGame implements Serializable
 	 */
 
 	private Robot robot;
+	private boolean useRobot = false;
+	
 	private Point mouseLocation;
 	private Point centerLocation;
 	private boolean relativeMouseMode;
@@ -108,18 +110,18 @@ public class Game extends BasicGame implements Serializable
 		container.setShowFPS(false);
 		objectList = new HashMap<String,GameObject>();
 		objectList.put("ship",new StandardShip(null,-1,-1,
-			Game.IMAGE_PATH+"ship.png",Game.IMAGE_PATH+"ship.png",1,null,"ship"));
+			Game.IMAGE_PATH+"ship.png",Game.IMAGE_PATH+"shipIcon.png",1,null,"ship"));
 		objectList.put("destroyer",new Destroyer(null,-1,-1,
-				Game.IMAGE_PATH+"destroyer.png",Game.IMAGE_PATH+"destroyer.png",1,null,"destroyer"));
+				Game.IMAGE_PATH+"destroyer.png",Game.IMAGE_PATH+"destroyerIcon.png",1,null,"destroyer"));
 		objectList.put("healer",new HealerShip(null,-1,-1,
 				Game.IMAGE_PATH+"healer.png",Game.IMAGE_PATH+"healerIcon.png",1,null,"healer"));
 		objectList.put("builder",new BuilderShip(null,-1,-1,
 				Game.IMAGE_PATH+"builder.png",Game.IMAGE_PATH+"builderIcon.png",1,null,"builder"));
 		
 		objectList.put("earth",new Earth(null,-1,-1,
-				Game.IMAGE_PATH+"earth.png",Game.IMAGE_PATH+"earth.png",1,null,"earth"));
+				Game.IMAGE_PATH+"earth.png",Game.IMAGE_PATH+"earthIcon.png",1,null,"earth"));
 		objectList.put("spacestation",new Spacestation(null,-1,-1,
-				Game.IMAGE_PATH+"spacestation.png",Game.IMAGE_PATH+"spacestation.png",1,null,"spacestation"));
+				Game.IMAGE_PATH+"spacestation.png",Game.IMAGE_PATH+"spacestationIcon.png",1,null,"spacestation"));
 		
 			
 		
@@ -151,14 +153,47 @@ public class Game extends BasicGame implements Serializable
 		//Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		screenSize = new Dimension(container.getWidth(),container.getHeight());
 		input = container.getInput();
-		gameWorld = new World(this, new Dimension(2000, 2000));
+		tiles = new TileMap(this,"maps/default.map");
+		changeGameWorld(tiles.getWorld());
+		/**gameWorld = new World(this, new Dimension(2000, 2000));
 		setWorldView(new View(gameWorld, screenSize));
-
+		
+		tiles = new TileMap(this, gameWorld, getWorldView(),"maps/default.map");
+		minimap = new Minimap(this, gameWorld, getWorldView());
+		
 		lobby = new Lobby();
 		menu = new MainMenu(this,gameWorld,getWorldView(),n);
 		menu.setLobby(lobby);
 		
-		tiles = new TileMap(this, gameWorld, getWorldView(),"maps/default.map");
+		
+
+		gui = new Gui(gameWorld, screenSize);
+		editor = new Editor(gameWorld, screenSize,this);
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		gameWorld.init(gui);
+		gameWorld.update(0);
+		//lobby = new Lobby(this,gameWorld,getWorldView());
+		dragSelect=new Point();**/
+		
+		
+
+	}
+	public Dimension getScreenSize(){
+		return screenSize;
+	}
+	public void changeGameWorld(World world){
+		gameWorld = world;
+		//setWorldView(new View(gameWorld, screenSize));
+		
+		lobby = new Lobby();
+		menu = new MainMenu(this,gameWorld,getWorldView(),n);
+		menu.setLobby(lobby);
+		
 		minimap = new Minimap(this, gameWorld, getWorldView());
 
 		gui = new Gui(gameWorld, screenSize);
@@ -173,9 +208,6 @@ public class Game extends BasicGame implements Serializable
 		gameWorld.update(0);
 		//lobby = new Lobby(this,gameWorld,getWorldView());
 		dragSelect=new Point();
-		
-		
-
 	}
 	@Override
 	public void update(GameContainer container, int delta)
@@ -293,11 +325,15 @@ public class Game extends BasicGame implements Serializable
 			}
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_S)&&editMode){
-			robot.keyRelease(KeyEvent.VK_CONTROL);
+			if(useRobot)
+				robot.keyRelease(KeyEvent.VK_CONTROL);
 			tiles.saveMap();
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_O)){
-			robot.keyRelease(KeyEvent.VK_CONTROL);
+			if(useRobot)
+				robot.keyRelease(KeyEvent.VK_CONTROL);
+			tiles = new TileMap(this,"maps/default.map");
+			changeGameWorld(tiles.getWorld());
 			tiles.loadMap();
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_E)){

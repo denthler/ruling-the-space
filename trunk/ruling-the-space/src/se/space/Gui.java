@@ -149,7 +149,7 @@ public class Gui implements Serializable{
 					}
 				}
 			}
-			if(this.currentObject.canBuild()){
+			if(this.currentObject!=null && this.currentObject.canBuild()){
 				this.currentObject.checkButtonPressed(x,y,t);
 			}
 		}
