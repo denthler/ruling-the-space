@@ -395,7 +395,7 @@ public class GameObject implements Serializable {
 		//	System.out.println(defDamage+"-"+defHealth+"-"+defPrice);
 	}
 	public void drawInterface(Graphics g,float x,float y) {
-		System.out.println("JAG BORDE INTE KORAS :(");
+		//System.out.println("JAG BORDE INTE KORAS :(");
 		// TODO Auto-generated method stub
 		
 	}

@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.awt.Dimension;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -30,17 +31,21 @@ public class TileMap {
 	static public HashMap<String,Image> 	sprite;
 	private Image							cachedImage;
 	private World 							world;
-	private View 							worldView;
+	private View							worldView;
 	private Tile 							list[][];
 	private String 							mapFile;
 	private static boolean					isSaving;
 
 
-	public TileMap(Game game, World world, View worldView, String file){
+	public TileMap(Game game, String file){
 		mapFile=file;
-		this.world=world;
+		Dimension d = loadDimension(mapFile);
+		this.world=new World(game,d);
+		Dimension screenSize = game.getScreenSize();
+		this.worldView = new View(world, screenSize);
+		game.setWorldView(worldView);
 		this.game=world.getGame();
-		this.worldView=worldView;
+		//this.worldView=worldView;
 		int numTilesX = world.getWidth() / Tile.DIMENSIONS+10;
 		int numTilesY = world.getHeight() / Tile.DIMENSIONS+10;
 		list= new Tile[numTilesX][numTilesY];
@@ -68,6 +73,24 @@ public class TileMap {
 
 
 	}
+	private Dimension loadDimension(String mapFile) {
+		BufferedReader in = null;
+		try{
+			in = new BufferedReader(new FileReader(mapFile));
+		}
+		catch(FileNotFoundException e){System.out.print("File not found");}
+		try{
+			int x = Integer.parseInt(in.readLine());
+			int y = Integer.parseInt(in.readLine());
+			in.close();
+			return new Dimension(x,y);
+		}
+		catch(Exception e){e.printStackTrace();}
+		return null;
+	}
+	public World getWorld(){
+		return world;
+	}
 	private void loadThis(String tempMapFile) {
 		if(world.getGameObjects()!=null){
 			for(GameObject obj:world.getGameObjects()){
@@ -87,6 +110,8 @@ public class TileMap {
 				cachedImage = new Image(world.getWidth(), world.getHeight());
 				Graphics g = cachedImage.getGraphics();
 				//		        load tiles
+				in.readLine();
+				in.readLine();
 				for(int yPos = 0; (line = in.readLine())!=null; yPos++) {
 					if(line.equals("///")){
 						break;
@@ -267,8 +292,9 @@ public class TileMap {
 		int returnVal = fc.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			file = fc.getSelectedFile();
-			loadThis(file.getPath());
-
+			TileMap t = new TileMap(game,file.getPath());
+			game.changeGameWorld(t.getWorld());
+			//loadThis(file.getPath());
 		}
 		fc = null;
 		//test.setVisible(false);
