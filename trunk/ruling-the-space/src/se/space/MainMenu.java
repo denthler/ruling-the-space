@@ -57,6 +57,8 @@ public class MainMenu {
 
 		//Main menu
 		MenuItems.add("Multiplayer");
+		MenuItems.add("Load Game");
+		MenuItems.add("Save Game");
 		MenuItems.add("Exit");
 
 
@@ -78,7 +80,7 @@ public class MainMenu {
 		Iterator<String> j = lobbyMenuItems.iterator();
 		while (j.hasNext()){
 			String next = j.next();
-			lobbyButtons.put(next,new Rectangle(xPos-5, yPos-5, 260, 30));
+			lobbyButtons.put(next,new Rectangle(xPos-5, yPos-85, 260, 30));
 			yPos+=40;
 		}
 
