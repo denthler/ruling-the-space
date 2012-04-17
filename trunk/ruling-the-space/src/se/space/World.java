@@ -462,7 +462,9 @@ public class World implements Serializable {
 		return game;
 	}
 	public void restartWorldNetwork(NetworkClient nc){
-		setServer(true);
+		if(game.isServer()){
+			setServer(true);
+		}
 		ClientOneTime = true;
 		ClientOneTime2 = true;
 		n = nc;

@@ -34,8 +34,8 @@ public class MainMenu {
 	private Game game;
 
 	//Network
-	private boolean isRunning = false;
-	private boolean hasJoined = false;
+//	private boolean isRunning = false;
+//	private boolean hasJoined = false;
 	private int lobbyPortNr = 15000;
 	private String ipToConnect;
 	private NetworkClient n;
@@ -153,7 +153,7 @@ public class MainMenu {
 		else{
 			ipToConnect = "";
 		}
-		if(isServer()&&!visible){
+		if(game.isServer()&&!visible){
 			drawJoinMenu(g);
 		}
 	}
@@ -166,7 +166,7 @@ public class MainMenu {
 		//
 		//		g.fillRect(screenSize.width/2-150, 50, 300, screenSize.height-250);
 
-		if(isServer()){
+		if(game.isServer()){
 			g.setColor(Color.red);
 		}
 		else{
@@ -225,7 +225,7 @@ public class MainMenu {
 		while (i.hasNext()){
 			String next = i.next();
 
-			if(next.equals("Host game") && isRunning){
+			if(next.equals("Host game") && game.isServer()){
 				g.drawString("starting...", xPos, yPos);
 			}
 			else{
@@ -235,7 +235,7 @@ public class MainMenu {
 			yPos+=40;
 		}
 
-		if(isRunning && netTime > 1000){
+		if(game.isServer() && netTime > 1000){
 
 			//TODO fix this code
 			/*
@@ -251,11 +251,11 @@ public class MainMenu {
 
 			netTime = 0;
 		}
-		else if(isRunning){
+		else if(game.isServer()){
 			g.drawString("Server already running", screenSize.width/2-150, 80);
 			netTime++;
 		}
-		else if(hasJoined){
+		else if(game.hasJoined()){
 			g.drawString("You has joined the game as player"+n.playerid, screenSize.width/2-150, 150);
 		}
 	}
@@ -308,8 +308,8 @@ public class MainMenu {
 				}
 				else if(lobbyButtons.get("Host game") != null && lobbyButtons.get("Host game").contains(x, y)){
 					//TODO Create a server
-					if(!isRunning){
-						isRunning = true;
+					if(!game.isServer()){
+						game.setIsServer(true);
 
 						try {
 							//Skapar en ny server
@@ -319,7 +319,7 @@ public class MainMenu {
 							Thread.sleep(500);
 
 							//Joinar server som nu skapats
-							n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr));
+							n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr),game);
 
 							//Resetar world (krävs ifall servern körts tidigare)
 							game.getGameworld().restartWorldNetwork(n);
@@ -336,19 +336,19 @@ public class MainMenu {
 					joinVisible = true;
 				}
 				else if(joinIsVisible() && joinButtons.get("Join") != null && joinButtons.get("Join").contains(x, y)){
-					if(n == null && !hasJoined){
+					if(n == null && !game.hasJoined()){
 						join();
 					}
 				}
 				else if(n!=null && n.hasJoined && joinIsVisible() && joinButtons.get("Disconnect") != null && joinButtons.get("Disconnect").contains(x, y)){
 					n.hasJoined = false;
-					hasJoined = false;
-					isRunning = false;
+					game.setJoined(false);
+					game.setIsClient(false);
 					n.closeConnectionToServer();
 					n = null;
 					Game.setNet(n);
 				}
-				else if(server!=null && isServer() && joinButtons.get("Disconnect") != null && joinButtons.get("Disconnect").contains(x, y)){
+				else if(server!=null && game.isServer() && joinButtons.get("Disconnect") != null && joinButtons.get("Disconnect").contains(x, y)){
 					int players = server.getPlayerid();
 					if(players>1){
 						for (int j= 2;j<=players;j++){ 
@@ -356,12 +356,12 @@ public class MainMenu {
 						}
 					}
 					n.hasJoined = false;
-					hasJoined = false;
+					game.setJoined(false);
 					n.closeConnectionToServer();
 					n = null;
 					Game.setNet(n);
 					
-					isRunning = false;
+					game.setIsServer(false);
 					server.disconnect();
 
 				}
@@ -370,16 +370,9 @@ public class MainMenu {
 
 	}
 
-	public boolean hasJoined(){
-		return hasJoined;
-	}
-
-	public boolean isNetworkServerRunning(){
-		return isRunning;
-	}
 
 	public int getServerPort(){
-		if(isRunning){
+		if(game.isServer()){
 			return lobbyPortNr;
 		}
 		return -1;
@@ -387,11 +380,13 @@ public class MainMenu {
 
 	public void join(){
 		try {
-			n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr));
+			n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr),game);
 			Thread.sleep(1000);
 
 			if(n.hasJoined==true){
-				setClient(true);
+				game.setIsClient(true);
+				game.setJoined(true);
+				game.getGameworld().restartWorldNetwork(n);
 			}
 		} 
 		catch(java.net.ConnectException e){
@@ -402,21 +397,6 @@ public class MainMenu {
 			e.printStackTrace();
 		}
 
-	}
-
-	public void setClient(boolean c){
-		hasJoined = c;
-	}
-	public void setServer(boolean s){
-		isRunning = s;
-	}
-
-	public boolean isServer(){
-		return isRunning;
-	}
-
-	public boolean isClient(){
-		return hasJoined;
 	}
 
 	public NetworkClient getNet(){

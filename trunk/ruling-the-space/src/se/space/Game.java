@@ -87,6 +87,9 @@ public class Game extends BasicGame implements Serializable
 	private Lobby lobby;
 	private boolean isFullscreen;
 	private boolean isHost;
+	private boolean isServer = false;
+	private boolean isClient = false;
+	private boolean hasJoined = false;
 	public Team redTeam;
 	public Team blueTeam;
 	public Team grayTeam;
@@ -96,9 +99,7 @@ public class Game extends BasicGame implements Serializable
 
 	//Network
 	private static NetworkClient n;
-	private boolean NetworkWorldLoaded = false;
-	private boolean NetworkSaved = false;
-	private boolean runOnce = false;
+	
 	private boolean victory = false;
 	private boolean defeat = false;
 
@@ -354,7 +355,7 @@ public class Game extends BasicGame implements Serializable
 
 		setNet(menu.getNet());
 		//TODO Network
-		if(menu.hasJoined() && !menu.isNetworkServerRunning()){
+		if(hasJoined && !isServer){
 			gameWorld.setClient(true);
 			if(n.playerid==2){
 				setMyTeam(blueTeam);
@@ -364,7 +365,7 @@ public class Game extends BasicGame implements Serializable
 			}
 		}
 		
-		if(menu.isNetworkServerRunning()){
+		if(isServer){
 			gameWorld.setServer(true);
 			gameWorld.setClient(false);
 
@@ -712,7 +713,7 @@ public class Game extends BasicGame implements Serializable
 	public static void main(String[] args) {
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		try {
-			AppGameContainer app = new AppGameContainer(new Game("TestGame"));
+			AppGameContainer app = new AppGameContainer(new Game("Ruling the space"));
 			app.setVerbose(DEBUG_MODE);
 			if(DEBUG_MODE) {
 				System.out.println("Supports alpha in backbuffer: " + app.supportsAlphaInBackBuffer());
@@ -760,17 +761,23 @@ public class Game extends BasicGame implements Serializable
 		}
 		return null;
 	}
-	public void setServer(boolean s){
-		menu.setServer(s);
-	}
-	public void setClient(boolean c){
-		menu.setClient(c);
-	}
-	public boolean isClient(){
-		return menu.isClient();
+	public void setIsServer(boolean s){
+		isServer=s;
 	}
 	public boolean isServer(){
-		return menu.isServer();
+		return isServer;
+	}
+	public void setIsClient(boolean c){
+		isClient=c;
+	}
+	public boolean isClient(){
+		return isClient();
+	}
+	public void setJoined(boolean j){
+		hasJoined=j;
+	}
+	public boolean hasJoined(){
+		return hasJoined;
 	}
 	public static void setNet(NetworkClient client){
 		n = client;
