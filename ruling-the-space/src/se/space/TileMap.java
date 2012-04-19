@@ -28,13 +28,13 @@ import se.space.spaceships.*;
 
 public class TileMap {
 	private Game 							game;
-	static public HashMap<String,Image> 	sprite;
+	public static HashMap<String,Image> 	sprite;
 	private Image							cachedImage;
 	private World 							world;
 	private View							worldView;
 	private Tile 							list[][];
 	private String 							mapFile;
-	private static boolean					isSaving;
+	private boolean					isSaving;
 
 
 	public TileMap(Game game, String file){
@@ -46,17 +46,9 @@ public class TileMap {
 		game.setWorldView(worldView);
 		this.game=world.getGame();
 		//this.worldView=worldView;
-		int numTilesX = world.getWidth() / Tile.DIMENSIONS+10;
-		int numTilesY = world.getHeight() / Tile.DIMENSIONS+10;
+		int numTilesX = (world.getWidth() / Tile.DIMENSIONS)+10;
+		int numTilesY = (world.getHeight() / Tile.DIMENSIONS)+10;
 		list= new Tile[numTilesX][numTilesY];
-		try {
-			for(Tile[] tempList:list)
-				for(Tile tempTile:tempList)
-					tempTile = new Tile(Game.IMAGE_PATH + "groundTile1.png",Tile.DIMENSIONS,Tile.DIMENSIONS);
-		} catch (SlickException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		try {
 			sprite = new HashMap<String,Image>();
 			sprite.put(Game.IMAGE_PATH + "groundTile1.png", new Image(Game.IMAGE_PATH + "groundTile1.png"));
@@ -107,7 +99,11 @@ public class TileMap {
 		String line;
 		try{
 			try {
+				System.out.println(world.getWidth()+"_"+world.getHeight());
 				cachedImage = new Image(world.getWidth(), world.getHeight());
+
+				generateTiles();
+				
 				Graphics g = cachedImage.getGraphics();
 				//		        load tiles
 				in.readLine();
@@ -204,46 +200,46 @@ public class TileMap {
 	public void setTile(int x, int y, String name){
 		try {
 			Graphics g = cachedImage.getGraphics();
-			if(!list[(int) (x/20)][(int) (y/20)].getTileName().equals(Game.IMAGE_PATH+name))
+			if(!list[(int) (x/Tile.DIMENSIONS)][(int) (y/Tile.DIMENSIONS)].getTileName().equals(Game.IMAGE_PATH+name))
 			{
 				g.drawImage(sprite.get(Game.IMAGE_PATH+name), ((int)(x/20))*20, ((int)(y/20))*20);
-				list[(int) (x/20)][(int) (y/20)].setTileName(Game.IMAGE_PATH+name);
+				list[(int) (x/Tile.DIMENSIONS)][(int) (y/Tile.DIMENSIONS)].setTileName(Game.IMAGE_PATH+name);
 			}
 			g.flush();
 		} 
-		catch (SlickException e) {
+		catch (Exception e) {
 			System.out.println("setTile error");
 			e.printStackTrace();
 		}
 
 	}
-//	public void drawMap(Game game, World world, View worldView){
+	public void generateTiles(){
 //		this.game= 		game;
 //		this.world= 	world;
 //		this.worldView=	worldView;
-//		try {
-//			cachedImage = new Image(world.getWidth() + 20 * 2, world.getHeight()-150 + 20 * 2);
-//			Graphics g = cachedImage.getGraphics();
-//
-//			int numTilesX = world.getWidth() / 20+10;
-//			int numTilesY = world.getHeight() / 20+10;
-//			list= new Tile[numTilesX][numTilesY];
-//
-//
-//			for(int yPos = 0; yPos < numTilesY; yPos++) {
-//				for(int xPos = 0; xPos < numTilesX; xPos++) {
-//					int rand = (int) (Math.random()*3)+1;
-//					list[xPos][yPos]=new Tile(Game.IMAGE_PATH + "groundTile"+rand+".png",xPos,yPos);
-//					g.drawImage(sprite.get(Game.IMAGE_PATH + "groundTile"+rand+".png"), xPos * 20, yPos * 20);
-//				}
-//			}
-//
-//			g.flush();
-//		} catch(SlickException ex) {
-//			System.out.println("Could not create image for drawing tiles.");
-//			ex.printStackTrace();
-//		}
-//	}
+		try {
+			//cachedImage = new Image(world.getWidth() + Tile.DIMENSIONS * 2, world.getHeight()-150 + Tile.DIMENSIONS * 2);
+			Graphics g = cachedImage.getGraphics();
+
+			int numTilesX = (world.getWidth() / Tile.DIMENSIONS)+10;
+			int numTilesY = (world.getHeight() / Tile.DIMENSIONS)+10;
+			list= new Tile[numTilesX][numTilesY];
+
+
+			for(int yPos = 0; yPos < numTilesY; yPos++) {
+				for(int xPos = 0; xPos < numTilesX; xPos++) {
+					int rand = (int) (Math.random()*3)+1;
+					list[xPos][yPos]=new Tile(Game.IMAGE_PATH + "groundTile"+rand+".png",xPos,yPos);
+					g.drawImage(sprite.get(Game.IMAGE_PATH + "groundTile"+rand+".png"), xPos * Tile.DIMENSIONS, yPos * Tile.DIMENSIONS);
+				}
+			}
+
+			g.flush();
+		} catch(SlickException ex) {
+			System.out.println("Could not create image for drawing tiles.");
+			ex.printStackTrace();
+		}
+	}
 	private class FFilter extends FileFilter {
 
 		//Accept all directories and all gif, jpg, tiff, or png files.
@@ -279,7 +275,7 @@ public class TileMap {
 			return ".map";
 		}
 	}
-	public void loadMap(){
+	public void loadMap() throws SlickException{
 		//JFrame test = new JFrame();
 		//test.setVisible(true);
 		//test.setUndecorated(true);
@@ -292,8 +288,30 @@ public class TileMap {
 		int returnVal = fc.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			file = fc.getSelectedFile();
-			TileMap t = new TileMap(game,file.getPath());
-			game.changeGameWorld(t.getWorld());
+			//list = null;
+			//cachedImage = new Image(0,0);
+			mapFile=file.getAbsolutePath();
+			Dimension d = loadDimension(mapFile);
+			this.world=new World(game,d);
+			this.worldView = new View(world, game.getScreenSize());
+			game.setWorldView(worldView);
+			this.game=world.getGame();
+			//this.worldView=worldView;
+			int numTilesX = (world.getWidth() / Tile.DIMENSIONS)+10;
+			int numTilesY = (world.getHeight() / Tile.DIMENSIONS)+10;
+			list= new Tile[numTilesX][numTilesY];
+//			try {
+//				for(Tile[] tempList:list)
+//					for(Tile tempTile:tempList)
+//						tempTile = new Tile(Game.IMAGE_PATH + "groundTile1.png",Tile.DIMENSIONS,Tile.DIMENSIONS);
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+				//drawMap(game,world,worldView);// to create a random map
+			
+			loadThis(mapFile);
+			game.changeGameWorld(getWorld());
 			//loadThis(file.getPath());
 		}
 		fc = null;

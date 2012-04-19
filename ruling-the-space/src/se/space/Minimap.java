@@ -67,6 +67,11 @@ public class Minimap {
 	public int getMinimapWidth() {
 		return minimapWidth;
 	}
+	
+	public Rectangle getShownMinimapRectangle(){
+		Rectangle viewRect = worldView.getViewLocationRect();
+		return new Rectangle(minimapX - viewRect.getX() / scaleX, minimapY - viewRect.getY() / scaleY, (int)(viewRect.getWidth() / scaleX), (int)(viewRect.getHeight() / scaleY));
+	}
 
 	public Rectangle getMinimapBoundary() {
 		return new Rectangle(minimapX, minimapY, minimapWidth, minimapHeight);
