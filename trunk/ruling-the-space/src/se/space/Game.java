@@ -520,8 +520,13 @@ public class Game extends BasicGame implements Serializable
 				//getWorldView().setXScrollDirection(View.ScrollX.LEFT);
 				float scaleX = gameWorld.getWidth() / (float)minimap.getMinimapWidth();
 				float scaleY = gameWorld.getHeight() / (float)minimap.getMinimapHeight();
-				float xpos = -((input.getMouseX()-minimap.Area.getMinX()-50)*scaleX);
-				float ypos = -((input.getMouseY()-minimap.Area.getMinY()-25)*scaleY);
+				Rectangle viewRect = minimap.getShownMinimapRectangle();
+				float xfix = -viewRect.getWidth()/2;//(minimap.getMinimapX()+ viewRect.getX()) / 2*scaleX;
+				float yfix = -viewRect.getHeight()/2;//25;//-viewRect.getMaxY()/2;
+				//System.out.println(xfix+"_"+yfix);
+				
+				float xpos = -((input.getMouseX()-minimap.Area.getMinX()+xfix)*scaleX);
+				float ypos = -((input.getMouseY()-minimap.Area.getMinY()+yfix)*scaleY);
 				float a = -1*(float)getWorldView().getCurrentViewLocation().getX();
 				float b = -1*(float)getWorldView().getCurrentViewLocation().getY();
 				//g.drawString(getWorldView().getCurrentViewLocation().toString(),a+50,b+50); //worldView.getScreenSize().width/2-75, worldView.getScreenSize().height/2-20);
