@@ -99,11 +99,10 @@ public class TileMap {
 		String line;
 		try{
 			try {
-				System.out.println(world.getWidth()+"_"+world.getHeight());
 				cachedImage = new Image(world.getWidth(), world.getHeight());
 
 				generateTiles();
-				
+
 				Graphics g = cachedImage.getGraphics();
 				//		        load tiles
 				in.readLine();
@@ -214,9 +213,9 @@ public class TileMap {
 
 	}
 	public void generateTiles(){
-//		this.game= 		game;
-//		this.world= 	world;
-//		this.worldView=	worldView;
+		//		this.game= 		game;
+		//		this.world= 	world;
+		//		this.worldView=	worldView;
 		try {
 			//cachedImage = new Image(world.getWidth() + Tile.DIMENSIONS * 2, world.getHeight()-150 + Tile.DIMENSIONS * 2);
 			Graphics g = cachedImage.getGraphics();
@@ -275,116 +274,105 @@ public class TileMap {
 			return ".map";
 		}
 	}
-	public void loadMap() throws SlickException{
+	public void loadMap(String fname) throws SlickException{
 		//JFrame test = new JFrame();
 		//test.setVisible(true);
 		//test.setUndecorated(true);
-		BufferedWriter bw = null;
+		/*BufferedWriter bw = null;
 		File file = null;
 		FFilter filter = new FFilter();
 		JFileChooser fc = new JFileChooser("maps");
 		fc.setAcceptAllFileFilterUsed(false);
 		fc.addChoosableFileFilter(filter);
 		int returnVal = fc.showOpenDialog(null);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			file = fc.getSelectedFile();
-			//list = null;
-			//cachedImage = new Image(0,0);
-			mapFile=file.getAbsolutePath();
-			Dimension d = loadDimension(mapFile);
-			this.world=new World(game,d);
-			this.worldView = new View(world, game.getScreenSize());
-			game.setWorldView(worldView);
-			this.game=world.getGame();
-			//this.worldView=worldView;
-			int numTilesX = (world.getWidth() / Tile.DIMENSIONS)+10;
-			int numTilesY = (world.getHeight() / Tile.DIMENSIONS)+10;
-			list= new Tile[numTilesX][numTilesY];
-//			try {
-//				for(Tile[] tempList:list)
-//					for(Tile tempTile:tempList)
-//						tempTile = new Tile(Game.IMAGE_PATH + "groundTile1.png",Tile.DIMENSIONS,Tile.DIMENSIONS);
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-				//drawMap(game,world,worldView);// to create a random map
-			
-			loadThis(mapFile);
-			game.changeGameWorld(getWorld());
-			//loadThis(file.getPath());
-		}
-		fc = null;
+		if (returnVal == JFileChooser.APPROVE_OPTION) {*/
+		//File file = fname;
+		//list = null;
+		//cachedImage = new Image(0,0);
+		mapFile=fname;
+		Dimension d = loadDimension(mapFile);
+		this.world=new World(game,d);
+		this.worldView = new View(world, game.getScreenSize());
+		game.setWorldView(worldView);
+		this.game=world.getGame();
+		//this.worldView=worldView;
+		int numTilesX = (world.getWidth() / Tile.DIMENSIONS)+10;
+		int numTilesY = (world.getHeight() / Tile.DIMENSIONS)+10;
+		list= new Tile[numTilesX][numTilesY];
+		//			try {
+		//				for(Tile[] tempList:list)
+		//					for(Tile tempTile:tempList)
+		//						tempTile = new Tile(Game.IMAGE_PATH + "groundTile1.png",Tile.DIMENSIONS,Tile.DIMENSIONS);
+		//			} catch (Exception e) {
+		//				// TODO Auto-generated catch block
+		//				e.printStackTrace();
+		//			}
+		//drawMap(game,world,worldView);// to create a random map
+
+		loadThis(mapFile);
+		game.changeGameWorld(getWorld());
+		//loadThis(file.getPath());
+		//fc = null;
 		//test.setVisible(false);
 	}
 	private class SaveGame extends Thread{
 		Tile[][] tileList;
-		public SaveGame(Tile[][] tempList){
+		String filename;
+		public SaveGame(Tile[][] tempList, String filename){
 			tileList=tempList;
+			this.filename = filename;
 		}
-		JFrame test = new JFrame();
 		public void run(){
 			SaveThisGame();
 		}
 		public void SaveThisGame(){
-			test.setVisible(true);
-			test.setAlwaysOnTop(true);
+
 			//test.setUndecorated(true);
 			BufferedWriter bw = null;
 			File file = null;
-			FFilter filter = new FFilter();
-			JFileChooser fc = new JFileChooser("maps");
-			fc.setAcceptAllFileFilterUsed(false);
-			fc.addChoosableFileFilter(filter);
-			int returnVal = fc.showSaveDialog(test);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				file = fc.getSelectedFile();
-				if((filter.getExtension(file)==(null))){
-					file = new File(file.getPath()+".map");
-				}
-				else{
-					file = new File(file.getPath());
-				}
-				try {
-					bw = new BufferedWriter(new FileWriter(file));
-					//					write tiles
-					//TODO Changeable within game.
-					bw.write("" + (int) world.getWorldSize().getWidth() + "\n");
-					bw.write("" + (int) world.getWorldSize().getHeight() + "\n");
-					for(Tile[] tempList : tileList){
-						for(Tile  tempTile: tempList){
-							if(tempTile!=null)
-								bw.write(tempTile.getTileName()+" ");
-						}
-						bw.write("\n");
+
+			file = new File(filename);
+
+			try {
+				bw = new BufferedWriter(new FileWriter(file));
+				//					write tiles
+				//TODO Changeable within game.
+				bw.write("" + (int) world.getWorldSize().getWidth() + "\n");
+				bw.write("" + (int) world.getWorldSize().getHeight() + "\n");
+				for(Tile[] tempList : tileList){
+					for(Tile  tempTile: tempList){
+						if(tempTile!=null)
+							bw.write(tempTile.getTileName()+" ");
 					}
-					//					write objects
-					bw.write("///\n");
-					for(GameObject obj:world.getGameObjects()){
-						bw.write(obj.getSprite().getResourceReference()
-								+"\t"+(int)obj.getxPos()
-								+"\t"+(int)obj.getyPos()
-								+"\t"+obj.getTeam().getColor().getRed()
-								+"\t"+obj.getTeam().getColor().getGreen()
-								+"\t"+obj.getTeam().getColor().getBlue()
-								+"\t"+obj.getHealth()
-								+"\n");
-					}
-					bw.close();
-					System.out.println("Saved map as "+file.getName());
-				} catch (IOException e) {
-					System.out.print("failed to save map");
-					e.printStackTrace();
+					bw.write("\n");
 				}
+				//					write objects
+				bw.write("///\n");
+				for(GameObject obj:world.getGameObjects()){
+					bw.write(obj.getSprite().getResourceReference()
+							+"\t"+(int)obj.getxPos()
+							+"\t"+(int)obj.getyPos()
+							+"\t"+obj.getTeam().getColor().getRed()
+							+"\t"+obj.getTeam().getColor().getGreen()
+							+"\t"+obj.getTeam().getColor().getBlue()
+							+"\t"+obj.getHealth()
+							+"\n");
+				}
+				bw.close();
+				System.out.println("Saved map as "+file.getName());
+			} catch (IOException e) {
+				System.out.print("failed to save map");
+				e.printStackTrace();
 			}
-			test.setVisible(false);
+
 			isSaving=false;
+
 		}
 	}
-	public void saveMap(){
+	public void saveMap(String filename){
 		if(!isSaving){
 			isSaving=true;
-			Thread save = new SaveGame(list.clone());
+			Thread save = new SaveGame(list.clone(),filename);
 			save.start();
 		}
 	}
@@ -397,3 +385,4 @@ public class TileMap {
 		g.drawImage(cachedImage, 0, 0);
 	}
 }
+

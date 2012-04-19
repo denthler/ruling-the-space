@@ -393,7 +393,7 @@ public class World implements Serializable {
 			if(object.isShip() && object.getTeam()==game.getMyTeam()){
 				object.checkLevelUp();
 			}
-			if(!game.isEditMode()){
+			if(!game.isEditMode() && !game.isPaused()){
 				object.update();
 			}
 		}
@@ -407,8 +407,7 @@ public class World implements Serializable {
 			}
 		}
 
-		// Update network related objects
-		updateNetwork();
+		
 	}
 	public void init(Gui gui) {
 		this.gui = gui;

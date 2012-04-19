@@ -1,6 +1,7 @@
 package se.space;
 
 import java.awt.Dimension;
+import java.io.File;
 import java.net.Socket;
 import java.util.*;
 
@@ -13,6 +14,8 @@ public class MainMenu {
 	private boolean visible = false;
 	private boolean lobbyVisible = false;
 	private boolean joinVisible = false;
+	private boolean loadVisible = false;
+	private boolean saveVisible = false;
 
 
 
@@ -28,16 +31,25 @@ public class MainMenu {
 	private HashMap<String,Rectangle> joinButtons;
 	private LinkedList<String> joinMenuItems;
 
+	//Load menu
+	private HashMap<String,Rectangle> loadButtons;
+	private ArrayList<String> loadMenuItems;
+
+	//Save menu
+	private HashMap<String,Rectangle> saveButtons;
+	private ArrayList<String> saveMenuItems;
+	
 	public Rectangle Area;
 	private Lobby lobby;
-	
+
 	private Game game;
 
 	//Network
-//	private boolean isRunning = false;
-//	private boolean hasJoined = false;
+	//	private boolean isRunning = false;
+	//	private boolean hasJoined = false;
 	private int lobbyPortNr = 15000;
 	private String ipToConnect;
+	private String fileName="";
 	private NetworkClient n;
 	private NetworkServer server;
 	private int netTime = 0;
@@ -46,7 +58,7 @@ public class MainMenu {
 	public MainMenu(Game game, World gameWorld, View worldView,NetworkClient net) {
 		n=net;
 		this.game = game;
-		
+
 		screenSize = worldView.getScreenSize();
 		buttons = new HashMap<String,Rectangle>();
 		MenuItems = new LinkedList<String>();
@@ -100,6 +112,31 @@ public class MainMenu {
 		}
 		yPos=yPosTemp+40;
 
+		//Load menu
+		loadButtons = new HashMap<String,Rectangle>();
+		loadMenuItems = new ArrayList<String>();
+
+		
+
+
+		
+		
+		//Save menu
+		saveButtons = new HashMap<String,Rectangle>();
+		saveMenuItems = new ArrayList<String>();
+
+		saveMenuItems.add("Menu");
+
+		xPos=screenSize.width/2-150+25;
+		yPos=260;
+
+		Iterator<String> o = saveMenuItems.iterator();
+		while (o.hasNext()){
+			String next = o.next();
+			saveButtons.put(next,new Rectangle(xPos-5, yPos-85, 260, 30));
+			yPos+=40;
+		}
+
 		//Network
 		//n = new NetworkClient(new Socket(ipToConnect, lobbyPortNr), "RUNNING?");
 	}
@@ -109,7 +146,7 @@ public class MainMenu {
 	}
 
 	public boolean isVisible() {
-		return visible;
+		return visible||lobbyVisible||joinVisible||loadVisible||saveVisible;
 	}
 
 	public void setVisible(boolean b) {
@@ -132,6 +169,23 @@ public class MainMenu {
 		joinVisible = b;
 	}
 
+	public boolean loadIsVisible(){
+		return loadVisible;
+	}
+
+	public void setLoadIsVisible(boolean b){
+		loadVisible = b;
+	}
+	
+	public boolean saveIsVisible(){
+		return saveVisible;
+	}
+
+	public void setSaveIsVisible(boolean b){
+		saveVisible = b;
+	}
+
+
 	public void addIp(String s){
 		if(s.equals("BACK") && ipToConnect.length()>0){
 			ipToConnect = ipToConnect.substring(0, ipToConnect.length()-1); 
@@ -140,14 +194,34 @@ public class MainMenu {
 			ipToConnect += "" + s;
 		}
 	}
+	
+	public void addFileName(String s){
+		if(s.equals("BACK") && fileName.length()>0){
+			fileName = fileName.substring(0, fileName.length()-1); 
+		}
+		else if(!s.equals("BACK")){
+			fileName += "" + s;
+		}
+	}
+	
+	public String getSaveFileName(){
+		return fileName;
+	}
 
 	public void draw(Graphics g) {
 		if(visible){
 			drawMenu(g);
 		}
-		if(lobbyVisible){
+		else if(lobbyVisible){
 			drawLobby(g);
 		}
+		else if(loadVisible){
+			drawLoad(g);
+		}
+		else if(saveVisible){
+			drawSave(g);
+		}
+		
 		if(joinVisible){
 			drawJoinByIp(g);
 			drawJoinMenu(g);
@@ -210,6 +284,84 @@ public class MainMenu {
 
 	}
 
+	public void drawLoad(Graphics g){
+		
+		loadMenuItems = new ArrayList<String>();
+		File folder = new File("maps");
+		File[] listOfFiles = folder.listFiles();
+
+		for (int z = 0; z < listOfFiles.length; z++) {
+			if (listOfFiles[z].isFile()) {
+				if(listOfFiles[z].getName().endsWith(".map")){
+					String fname = listOfFiles[z].getName();
+					fname = fname.substring(0,fname.length()-4);//.substring(0, )
+					loadMenuItems.add(fname);
+				}
+			}
+		}
+		
+		loadMenuItems.add("Menu");
+
+		int xPos=screenSize.width/2-150+25;
+		int yPos=260;
+
+		Iterator<String> l = loadMenuItems.iterator();
+		while (l.hasNext()){
+			String next = l.next();
+			loadButtons.put(next,new Rectangle(xPos-5, yPos-85, 260, 30));
+			yPos+=40;
+		}
+		
+		xPos=screenSize.width/2-150+25;
+		yPos=180;
+
+		g.setColor(Color.darkGray);
+
+		g.fillRect(screenSize.width/2-200, 0, 400, screenSize.height-150);
+
+		g.setColor(Color.green);
+
+		g.drawString("Load", screenSize.width/2-150, 50);
+
+
+		Iterator<String> i = loadMenuItems.iterator();
+		while (i.hasNext()){
+			String next = i.next();
+
+			g.drawString(next, xPos, yPos);
+			g.draw(loadButtons.get(next));
+			yPos+=40;
+		}
+
+	}
+	
+	public void drawSave(Graphics g){
+		int xPos=screenSize.width/2-150+25;
+		int yPos=180;
+
+		g.setColor(Color.darkGray);
+
+		g.fillRect(screenSize.width/2-200, 0, 400, screenSize.height-150);
+
+		g.setColor(Color.green);
+
+		g.drawString("Save", screenSize.width/2-150, 50);
+
+
+		Iterator<String> i = saveMenuItems.iterator();
+		while (i.hasNext()){
+			String next = i.next();
+
+			g.drawString(next, xPos, yPos);
+			g.draw(saveButtons.get(next));
+			yPos+=40;
+		}
+		
+		g.drawString(fileName, screenSize.width/2-100, 85);
+		g.drawLine(screenSize.width/2-100, 100, screenSize.width/2+100, 100);
+
+	}
+
 	public void drawLobby(Graphics g){
 		int xPos=screenSize.width/2-150+25;
 		int yPos=180;
@@ -269,8 +421,8 @@ public class MainMenu {
 		}
 	}
 
-	public void mouseClick(int x, int y, Graphics g){
-
+	public void mouseClick(int x, int y, Graphics g) throws SlickException{
+		
 		if(visible){
 			Iterator<String> i = MenuItems.iterator();
 			while (i.hasNext()){
@@ -296,9 +448,20 @@ public class MainMenu {
 					//TODO setup lobby
 					//lobby.setupLobby();
 				}
+				else if(buttons.get("Load Game")!=null && buttons.get("Load Game").contains(x,y)){
+					//game.tiles.loadMap();
+					visible = false;
+					
+					loadVisible = true;
+				}
+				else if(buttons.get("Save Game")!=null && buttons.get("Save Game").contains(x,y)){
+					//game.tiles.saveMap();
+					visible = false;
+					saveVisible = true;
+				}
 			}
 		}
-		if(lobbyVisible){
+		else if(lobbyVisible){
 
 			Iterator<String> i = lobbyMenuItems.iterator();
 			while (i.hasNext()){
@@ -310,7 +473,7 @@ public class MainMenu {
 				}
 				else if(lobbyButtons.get("Host game") != null && lobbyButtons.get("Host game").contains(x, y)){
 					//TODO Create a server
-					if(!game.isServer()){
+					if(!game.isServer() && !joinVisible){
 						game.setIsServer(true);
 
 						try {
@@ -325,7 +488,7 @@ public class MainMenu {
 
 							//Resetar world (krävs ifall servern körts tidigare)
 							game.getGameworld().restartWorldNetwork(n);
-							
+
 						} catch (Exception e1) {
 							System.out.println("Exception " + e1);
 						}
@@ -335,7 +498,9 @@ public class MainMenu {
 					}
 				}
 				else if(lobbyButtons.get("Join by ip") != null && lobbyButtons.get("Join by ip").contains(x, y)){
-					joinVisible = true;
+					if(!game.isServer()){
+						joinVisible = true;
+					}
 				}
 				else if(joinIsVisible() && joinButtons.get("Join") != null && joinButtons.get("Join").contains(x, y)){
 					if(n == null && !game.hasJoined()){
@@ -362,11 +527,39 @@ public class MainMenu {
 					n.closeConnectionToServer();
 					n = null;
 					Game.setNet(n);
-					
+
 					game.setIsServer(false);
 					server.disconnect();
 
 				}
+			}
+		}
+		else if(loadVisible){
+			Iterator<String> i = loadMenuItems.iterator();
+			while (i.hasNext()){
+				i.next();
+				if(loadButtons.get("Menu") != null && loadButtons.get("Menu").contains(x, y)){
+					visible = true;
+					loadVisible = false;
+				}
+				for (String mapItem : loadMenuItems) {
+					if(loadVisible && loadButtons.get(mapItem).contains(x, y)){
+						loadVisible = false;
+						game.tiles.loadMap("maps/"+mapItem+".map");
+						break;
+					}
+				}
+			}
+		}
+		else if(saveVisible){
+			Iterator<String> i = saveMenuItems.iterator();
+			while (i.hasNext()){
+				i.next();
+				if(saveButtons.get("Menu") != null && saveButtons.get("Menu").contains(x, y)){
+					visible = true;
+					saveVisible = false;
+				}
+
 			}
 		}
 

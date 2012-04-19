@@ -48,7 +48,7 @@ public class Game extends BasicGame implements Serializable
 
 	private Robot robot;
 	private boolean useRobot = false;
-	
+
 	private Point mouseLocation;
 	private Point centerLocation;
 	private boolean relativeMouseMode;
@@ -56,7 +56,7 @@ public class Game extends BasicGame implements Serializable
 
 	private transient World gameWorld;
 	private View worldView;
-	private TileMap tiles;
+	public TileMap tiles;
 	private Minimap minimap;
 	private Gui gui;
 	private Editor editor;
@@ -84,7 +84,7 @@ public class Game extends BasicGame implements Serializable
 	private Timer t;
 	private Timer doubleClickTimer;
 	private boolean doubleClick;
-	
+
 	private MainMenu menu;
 	private Lobby lobby;
 	private boolean isFullscreen;
@@ -98,10 +98,11 @@ public class Game extends BasicGame implements Serializable
 	private Team myTeam;
 	public static final boolean DEBUG_MODE = false;
 	public static final String IMAGE_PATH = "images/";
+	private int mouseClicked = 0;
 
 	//Network
 	private static NetworkClient n;
-	
+
 	private boolean victory = false;
 	private boolean defeat = false;
 
@@ -110,22 +111,22 @@ public class Game extends BasicGame implements Serializable
 		container.setShowFPS(false);
 		objectList = new HashMap<String,GameObject>();
 		objectList.put("ship",new StandardShip(null,-1,-1,
-			Game.IMAGE_PATH+"ship.png",Game.IMAGE_PATH+"shipIcon.png",1,null,"ship"));
+				Game.IMAGE_PATH+"ship.png",Game.IMAGE_PATH+"shipIcon.png",1,null,"ship"));
 		objectList.put("destroyer",new Destroyer(null,-1,-1,
 				Game.IMAGE_PATH+"destroyer.png",Game.IMAGE_PATH+"destroyerIcon.png",1,null,"destroyer"));
 		objectList.put("healer",new HealerShip(null,-1,-1,
 				Game.IMAGE_PATH+"healer.png",Game.IMAGE_PATH+"healerIcon.png",1,null,"healer"));
 		objectList.put("builder",new BuilderShip(null,-1,-1,
 				Game.IMAGE_PATH+"builder.png",Game.IMAGE_PATH+"builderIcon.png",1,null,"builder"));
-		
+
 		objectList.put("earth",new Earth(null,-1,-1,
 				Game.IMAGE_PATH+"earth.png",Game.IMAGE_PATH+"earthIcon.png",1,null,"earth"));
 		objectList.put("spacestation",new Spacestation(null,-1,-1,
 				Game.IMAGE_PATH+"spacestation.png",Game.IMAGE_PATH+"spacestationIcon.png",1,null,"spacestation"));
-		
-			
-		
-	/*	objectImageList = new HashMap<String,Image>();
+
+
+
+		/*	objectImageList = new HashMap<String,Image>();
 		for(String s:objectList.keySet()) {
 			objectImageList.put("ship.png", new Image(Game.IMAGE_PATH + "ship.png"));
 			objectImageList.put("destroyer.png", new Image(Game.IMAGE_PATH + "destroyer.png"));
@@ -149,7 +150,7 @@ public class Game extends BasicGame implements Serializable
 		container.setAlwaysRender(false);
 		container.setSmoothDeltas(true);
 		container.setFullscreen(isFullscreen);
-		
+
 		//Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		screenSize = new Dimension(container.getWidth(),container.getHeight());
 		input = container.getInput();
@@ -157,15 +158,15 @@ public class Game extends BasicGame implements Serializable
 		changeGameWorld(tiles.getWorld());
 		/**gameWorld = new World(this, new Dimension(2000, 2000));
 		setWorldView(new View(gameWorld, screenSize));
-		
+
 		tiles = new TileMap(this, gameWorld, getWorldView(),"maps/default.map");
 		minimap = new Minimap(this, gameWorld, getWorldView());
-		
+
 		lobby = new Lobby();
 		menu = new MainMenu(this,gameWorld,getWorldView(),n);
 		menu.setLobby(lobby);
-		
-		
+
+
 
 		gui = new Gui(gameWorld, screenSize);
 		editor = new Editor(gameWorld, screenSize,this);
@@ -179,8 +180,8 @@ public class Game extends BasicGame implements Serializable
 		gameWorld.update(0);
 		//lobby = new Lobby(this,gameWorld,getWorldView());
 		dragSelect=new Point();**/
-		
-		
+
+
 
 	}
 	public Dimension getScreenSize(){
@@ -189,11 +190,11 @@ public class Game extends BasicGame implements Serializable
 	public void changeGameWorld(World world){
 		gameWorld = world;
 		//setWorldView(new View(gameWorld, screenSize));
-		
+
 		lobby = new Lobby();
 		menu = new MainMenu(this,gameWorld,getWorldView(),n);
 		menu.setLobby(lobby);
-		
+
 		minimap = new Minimap(this, gameWorld, getWorldView());
 
 		gui = new Gui(gameWorld, screenSize);
@@ -236,7 +237,7 @@ public class Game extends BasicGame implements Serializable
 		else{
 			getWorldView().setYScrollDirection(View.ScrollY.NONE);
 		}
-		
+
 		///////////move with mouse
 		if(input.getMouseX()<10){
 			getWorldView().setXScrollDirection(View.ScrollX.LEFT);
@@ -259,9 +260,15 @@ public class Game extends BasicGame implements Serializable
 				menu.setLobbyVisible(false);
 				menu.setJoinIsVisible(false);
 			}
+			else if(menu.loadIsVisible() && menu.isVisible()){
+				menu.setLoadIsVisible(false);
+			}
+			else if(menu.saveIsVisible() && menu.isVisible()){
+				menu.setSaveIsVisible(false);
+			}
 		}
 		boolean lcont = false;
-		if(!editMode && input.isKeyDown(Input.KEY_LCONTROL) && !menu.lobbyIsVisible()){
+		if(!editMode && input.isKeyDown(Input.KEY_LCONTROL) && !menu.lobbyIsVisible() && !menu.saveIsVisible()){
 			lcont = true;
 			for(int i=0;i<numberKeys.length;i++){
 				if(input.isKeyPressed(numberKeys[i])){
@@ -277,7 +284,7 @@ public class Game extends BasicGame implements Serializable
 				}
 			}
 		}
-		if(!editMode && !lcont && !menu.lobbyIsVisible()){
+		if(!editMode && !lcont && !menu.lobbyIsVisible() && !menu.saveIsVisible()){
 			for(int i=0;i<numberKeys.length;i++){
 				if(input.isKeyPressed(numberKeys[i])){
 					if(hotkeyTimer.isDone() || i!=lastUsedGroup){
@@ -312,7 +319,7 @@ public class Game extends BasicGame implements Serializable
 				}
 			}
 		}
-		
+
 		if(followGroup!=-1 && input.isKeyDown(numberKeys[followGroup])){
 			ArrayList<GameObject> go = (ArrayList<GameObject>) this.numberGroup.get(followGroup);
 			if(go != null && go.size()>0){
@@ -327,14 +334,14 @@ public class Game extends BasicGame implements Serializable
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_S)&&editMode){
 			if(useRobot)
 				robot.keyRelease(KeyEvent.VK_CONTROL);
-			tiles.saveMap();
+			//tiles.saveMap();
+			menu.setSaveIsVisible(true);
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_O)){
 			if(useRobot)
 				robot.keyRelease(KeyEvent.VK_CONTROL);
-			tiles = new TileMap(this,"maps/default.map");
-			changeGameWorld(tiles.getWorld());
-			tiles.loadMap();
+			//tiles.loadMap();
+			menu.setLoadIsVisible(true);
 		}
 		if(input.isKeyDown(Input.KEY_LCONTROL)&&input.isKeyPressed(Input.KEY_E)){
 			this.editMode=!this.editMode;
@@ -345,176 +352,107 @@ public class Game extends BasicGame implements Serializable
 				t.reset();
 			}
 		}
-		
+
 		if(menu.lobbyIsVisible() && menu.joinIsVisible()){
 			//org.newdawn.slick.KeyListener e;
 			//try{
 			boolean added = false;
 			//try {
-				//int sleepTime = 150;
-				input.disableKeyRepeat();
+			//int sleepTime = 150;
+			input.disableKeyRepeat();
 
-				for(int i = 0; i < 200; i++){
-					if(input.isKeyPressed(i) && !added){
-						if(Input.getKeyName(i).equals("PERIOD")){
-							menu.addIp(".");
-							//Thread.sleep(sleepTime);
-						}
-						else if(Input.getKeyName(i).equals("MINUS")){
-							menu.addIp("-");
-							//Thread.sleep(sleepTime);
-						}
-						else if(Input.getKeyName(i).equals("UNDERLINE")){
-							menu.addIp("_");
-							//Thread.sleep(sleepTime);
-						}
-						else if(Input.getKeyName(i).equals("RETURN")){
-							menu.join();
-							//Thread.sleep(sleepTime);
-						}
-						else if(Input.getKeyName(i).matches("(\\w|\\d)") || Input.getKeyName(i).equals("BACK")){
-							menu.addIp("" + Input.getKeyName(i));
-							//Thread.sleep(sleepTime);
-						}
-						added = true;
-						break;
+			for(int i = 0; i < 200; i++){
+				if(input.isKeyPressed(i) && !added){
+					if(Input.getKeyName(i).equals("PERIOD")){
+						menu.addIp(".");
+						//Thread.sleep(sleepTime);
 					}
+					else if(Input.getKeyName(i).equals("MINUS")){
+						menu.addIp("-");
+						//Thread.sleep(sleepTime);
+					}
+					else if(Input.getKeyName(i).equals("UNDERLINE")){
+						menu.addIp("_");
+						//Thread.sleep(sleepTime);
+					}
+					else if(Input.getKeyName(i).equals("RETURN")){
+						menu.join();
+						//Thread.sleep(sleepTime);
+					}
+					else if(Input.getKeyName(i).matches("(\\w|\\d)") || Input.getKeyName(i).equals("BACK")){
+						menu.addIp("" + Input.getKeyName(i));
+						//Thread.sleep(sleepTime);
+					}
+					added = true;
+					break;
 				}
-				input.enableKeyRepeat();
+			}
+			input.enableKeyRepeat();
 
 			///} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+			// TODO Auto-generated catch block
 			//	e.printStackTrace();
 			//}
 		}
 
+		if(menu.saveIsVisible()){
+			boolean added = false;
+			input.disableKeyRepeat();
 
-		setNet(menu.getNet());
-		//TODO Network
-		if(hasJoined && !isServer){
-			gameWorld.setClient(true);
-			if(n.playerid==2){
-				setMyTeam(blueTeam);
-			}
-			if(n.playerid==3){
-				setMyTeam(grayTeam);
-			}
-		}
-		
-		if(isServer){
-			gameWorld.setServer(true);
-			gameWorld.setClient(false);
-
-			int i = 0;
-			
-			for(GameObject go : getGameworld().getGameObjects()){
-				go.setid(i);
-				i++;
-			}
-			
-		}
-		
-		/*if(menu.hasJoined() && menu.isNetworkServerRunning() && !runOnce){
-				//NetworkObject nnetobj = new NetworkObject("SetWorld", gameWorld);
-				//n = new NetworkClient(new Socket("localhost", menu.getServerPort()), nnetobj);
-
-				//n = new NetworkClient(new Socket("localhost", menu.getServerPort()), "UPDATE");
-				
-				if(!NetworkSaved){
-					NetworkObject netobj = new NetworkObject("SAVEWORLD",gameWorld);
-					n.sendObject(netobj);
-					//n = new NetworkClient(new Socket("localhost", menu.getServerPort()), netobj);
-					if(n.getResponse().equals("Save success")){
-						NetworkSaved = true;
+			for(int i = 0; i < 200; i++){
+				if(input.isKeyPressed(i) && !added){
+					if(Input.getKeyName(i).equals("PERIOD")){
+						menu.addFileName(".");
 					}
-				}
-				if(!NetworkWorldLoaded && NetworkSaved){
-					//n = new NetworkClient(new Socket("localhost", menu.getServerPort()), "LOADWORLD");
-					n.sendObject("LOADWORLD");
-					gameWorld = (World) n.getResponse();
-
-					if(gameWorld != null){
-						NetworkWorldLoaded = true;
-						System.out.println("Wolrd loaded");
+					else if(Input.getKeyName(i).equals("MINUS")){
+						menu.addFileName("-");
 					}
-
-				}
-
-				System.out.println(n.getResponse());
-				runOnce = true;
-		}*/
-		
-		
-		boolean isVictory=true;
-		boolean isDefeat=true;
-		for(GameObject obj: gameWorld.getGameObjects()){
-			if(obj.getTeam()!=myTeam){
-				isVictory=false;
-				break;
-			}
-		}
-		if(isVictory){
-			victory=true;
-		}
-		if(!isVictory){
-			for(GameObject obj: gameWorld.getGameObjects()){
-				if(obj.getTeam()==myTeam){
-					isDefeat=false;
+					else if(Input.getKeyName(i).equals("UNDERLINE")){
+						menu.addFileName("_");
+					}
+					else if(Input.getKeyName(i).equals("RETURN")){
+						if(menu.getSaveFileName().length()>0){
+							tiles.saveMap("maps/"+menu.getSaveFileName() + ".map");
+							menu.setSaveIsVisible(false);
+						}
+					}
+					else if(Input.getKeyName(i).matches("(\\w|\\d)") || Input.getKeyName(i).equals("BACK")){
+						menu.addFileName("" + Input.getKeyName(i));
+					}
+					added = true;
 					break;
 				}
 			}
-			if(isDefeat){
-				defeat=true;
-			}
+			input.enableKeyRepeat();
+
+			///} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			//	e.printStackTrace();
+			//}
 		}
-		getWorldView().update();
-		if(!paused) {
-			gameWorld.update(delta);
-			updateCount++;
-		}
-	}
-	public boolean isDoubleClick() {
-		return doubleClick;
-	}
-	public void setDoubleClick(boolean doubleClick) {
-		this.doubleClick = doubleClick;
-	}
-	public boolean isSelectMode() {
-		return selectMode;
-	}
-	public void setSelectMode(boolean selectMode) {
-		this.selectMode = selectMode;
-	}
-	public boolean isEditMode() {
-		return editMode;
-	}
-	public void setEditMode(boolean editMode) {
-		this.editMode = editMode;
-	}
-	@Override
-	public void render(GameContainer container, Graphics g) throws SlickException {
-		Timer.updateTimers(50);
-		g.translate(getWorldView().getViewLocationRect().getX(), getWorldView().getViewLocationRect().getY());
-		tiles.draw(g);
-		gameWorld.render(g);
-		
 		int mouseWorldX = input.getMouseX() - (int)getWorldView().getCurrentViewLocation().x;
 		int mouseWorldY = input.getMouseY() - (int)getWorldView().getCurrentViewLocation().y;
 		
+		boolean menuClick = false;
+		
+		/*if(menu.isVisible() && input.isMousePressed(Input.MOUSE_LEFT_BUTTON)){
+			menu.mouseClick(input.getMouseX(), input.getMouseY(), g);
+		}*/
+
 		if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)){
 			//g.drawString("BLA: "+input.getMouseX()+"-"+input.getMouseY(), worldView.getScreenSize().width/2-75, worldView.getScreenSize().height/2);
 			//g.drawString("_"+editor.Area.getMaxY()+editor.Area.getMinY(), worldView.getScreenSize().width/2-75, worldView.getScreenSize().height/2+20);
 			if(editMode && editor.Area.contains(input.getMouseX(),input.getMouseY())){
 				editor.mouseClick(input.getMouseX(), input.getMouseY());
 			}
-			else if(menu.Area.contains(input.getMouseX(),input.getMouseY())){
+			/*else if(menuClick){
 				menu.mouseClick(input.getMouseX(), input.getMouseY(), g);
-			}
+			}*/
 			else if(!selectMode && gui.Area.contains(input.getMouseX(),input.getMouseY())){
 				this.guiMode = true;
 				gui.mouseClick(input.getMouseX(), input.getMouseY());
 			}//this.selectedObjects.size()==0 && 
-			
+
 			if(!this.selectMode && minimap.Area.contains(input.getMouseX(),input.getMouseY())){
 				minimapMode = true;
 				//getWorldView().setXScrollDirection(View.ScrollX.LEFT);
@@ -524,7 +462,7 @@ public class Game extends BasicGame implements Serializable
 				float xfix = -viewRect.getWidth()/2;//(minimap.getMinimapX()+ viewRect.getX()) / 2*scaleX;
 				float yfix = -viewRect.getHeight()/2;//25;//-viewRect.getMaxY()/2;
 				//System.out.println(xfix+"_"+yfix);
-				
+
 				float xpos = -((input.getMouseX()-minimap.Area.getMinX()+xfix)*scaleX);
 				float ypos = -((input.getMouseY()-minimap.Area.getMinY()+yfix)*scaleY);
 				float a = -1*(float)getWorldView().getCurrentViewLocation().getX();
@@ -532,8 +470,8 @@ public class Game extends BasicGame implements Serializable
 				//g.drawString(getWorldView().getCurrentViewLocation().toString(),a+50,b+50); //worldView.getScreenSize().width/2-75, worldView.getScreenSize().height/2-20);
 				//g.drawString(getWorldView().getCurrentViewLocation().toString(), worldView.getScreenSize().width/2-75, worldView.getScreenSize().height/2-20);
 				getWorldView().setCurrentViewLocation(new Point2D.Float(xpos,ypos));
-				
-				
+
+
 			}
 			if(editMode){
 				if(editor.getType().equals("tile"))
@@ -551,9 +489,9 @@ public class Game extends BasicGame implements Serializable
 							speed=1;
 						}
 						if(editor.getSelectedType().equals("ship")){
-							
+
 						}
-							
+
 						GameObject tempObj = GameObject.createObject(editor.getSelectedType(),this.gameWorld,mouseWorldX,mouseWorldY,editor.getSelectedTeam());
 						//tempObj.setAngle(240);
 						World.addObject(tempObj);
@@ -578,7 +516,7 @@ public class Game extends BasicGame implements Serializable
 				float fypos = -((input.getMouseY()-minimap.Area.getMinY()-25)*scaleY);
 				float a = -1*(float)getWorldView().getCurrentViewLocation().getX();
 				float b = -1*(float)getWorldView().getCurrentViewLocation().getY();
-				
+
 				getWorldView().setCurrentViewLocation(new Point2D.Float(fxpos,fypos));*/
 				int spaceX=0,spaceY=0;
 				if(this.getSelectedObjects()!=null){
@@ -627,6 +565,146 @@ public class Game extends BasicGame implements Serializable
 				&& !gui.Area.contains(input.getMouseX(), input.getMouseY())==true
 				&& (!EditMode||!editor.Area.contains(input.getMouseX(), input.getMouseY()))==true
 		)*/
+		
+		
+
+
+		setNet(menu.getNet());
+		//TODO Network
+		if(hasJoined && !isServer){
+			gameWorld.setClient(true);
+			if(n.playerid==2){
+				setMyTeam(blueTeam);
+			}
+			if(n.playerid==3){
+				setMyTeam(grayTeam);
+			}
+		}
+
+		if(isServer){
+			gameWorld.setServer(true);
+			gameWorld.setClient(false);
+
+			int i = 0;
+
+			for(GameObject go : getGameworld().getGameObjects()){
+				go.setid(i);
+				i++;
+			}
+
+		}
+
+		/*if(menu.hasJoined() && menu.isNetworkServerRunning() && !runOnce){
+				//NetworkObject nnetobj = new NetworkObject("SetWorld", gameWorld);
+				//n = new NetworkClient(new Socket("localhost", menu.getServerPort()), nnetobj);
+
+				//n = new NetworkClient(new Socket("localhost", menu.getServerPort()), "UPDATE");
+
+				if(!NetworkSaved){
+					NetworkObject netobj = new NetworkObject("SAVEWORLD",gameWorld);
+					n.sendObject(netobj);
+					//n = new NetworkClient(new Socket("localhost", menu.getServerPort()), netobj);
+					if(n.getResponse().equals("Save success")){
+						NetworkSaved = true;
+					}
+				}
+				if(!NetworkWorldLoaded && NetworkSaved){
+					//n = new NetworkClient(new Socket("localhost", menu.getServerPort()), "LOADWORLD");
+					n.sendObject("LOADWORLD");
+					gameWorld = (World) n.getResponse();
+
+					if(gameWorld != null){
+						NetworkWorldLoaded = true;
+						System.out.println("Wolrd loaded");
+					}
+
+				}
+
+				System.out.println(n.getResponse());
+				runOnce = true;
+		}*/
+
+
+		boolean isVictory=true;
+		boolean isDefeat=true;
+		for(GameObject obj: gameWorld.getGameObjects()){
+			if(obj.getTeam()!=myTeam){
+				isVictory=false;
+				break;
+			}
+		}
+		if(isVictory){
+			victory=true;
+		}
+		if(!isVictory){
+			for(GameObject obj: gameWorld.getGameObjects()){
+				if(obj.getTeam()==myTeam){
+					isDefeat=false;
+					break;
+				}
+			}
+			if(isDefeat){
+				defeat=true;
+			}
+		}
+		getWorldView().update();
+		gameWorld.update(delta);
+		if(!paused) {
+			updateCount++;
+		}
+		// Update network related objects
+		gameWorld.updateNetwork();
+	}
+	public boolean isPaused() {
+		return paused;
+	}
+	public void setPaused(boolean paused) {
+		this.paused = paused;
+	}
+	public boolean isDoubleClick() {
+		return doubleClick;
+	}
+	public void setDoubleClick(boolean doubleClick) {
+		this.doubleClick = doubleClick;
+	}
+	public boolean isSelectMode() {
+		return selectMode;
+	}
+	public void setSelectMode(boolean selectMode) {
+		this.selectMode = selectMode;
+	}
+	public boolean isEditMode() {
+		return editMode;
+	}
+	public void setEditMode(boolean editMode) {
+		this.editMode = editMode;
+	}
+	@Override
+	public void render(GameContainer container, Graphics g) throws SlickException {
+		Timer.updateTimers(50);
+		g.translate(getWorldView().getViewLocationRect().getX(), getWorldView().getViewLocationRect().getY());
+		tiles.draw(g);
+		gameWorld.render(g);
+
+		int mouseWorldX = input.getMouseX() - (int)getWorldView().getCurrentViewLocation().x;
+		int mouseWorldY = input.getMouseY() - (int)getWorldView().getCurrentViewLocation().y;
+		boolean menuClick = false;
+		/*if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)){
+			if(mouseClicked==0)
+				mouseClicked = 1;
+		}
+		else{
+			if(mouseClicked==1){
+				if(menu.Area.contains(input.getMouseX(),input.getMouseY())){
+					menu.mouseClick(input.getMouseX(), input.getMouseY(), g);
+				}
+				mouseClicked=0;
+				menuClick = true;
+			}
+		}*/
+		if(menu.isVisible() && input.isMousePressed(Input.MOUSE_LEFT_BUTTON)){
+			menu.mouseClick(input.getMouseX(), input.getMouseY(), g);
+		}
 		if(!guiMode && !minimapMode && (!editMode||!editor.Area.contains(input.getMouseX(), input.getMouseY())==true))
 		{
 			if(input.isMousePressed(Input.MOUSE_LEFT_BUTTON)){
@@ -704,8 +782,6 @@ public class Game extends BasicGame implements Serializable
 			dragSelect.y=mouseWorldY;
 		}
 
-		
-
 		//Draw GUI and rings around selected objects
 		g.resetTransform();
 		if(getSelectedObjects()!=null){
@@ -730,7 +806,7 @@ public class Game extends BasicGame implements Serializable
 			editor.draw(g);
 		}
 		minimap.draw(g);
-		if(menu.isVisible() || menu.lobbyIsVisible()){
+		if(menu.isVisible() || menu.lobbyIsVisible() || menu.loadIsVisible() || menu.saveIsVisible()){
 			menu.draw(g);
 		}
 		if(paused){
