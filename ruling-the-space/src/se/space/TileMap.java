@@ -70,7 +70,7 @@ public class TileMap {
 		try{
 			in = new BufferedReader(new FileReader(mapFile));
 		}
-		catch(FileNotFoundException e){System.out.print("File not found");}
+		catch(FileNotFoundException e){System.out.print("File not found "+mapFile);}
 		try{
 			int x = Integer.parseInt(in.readLine());
 			int y = Integer.parseInt(in.readLine());

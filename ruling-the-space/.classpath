@@ -12,5 +12,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/Ruling the Space/slick.zip!/javadoc"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="maps"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
