@@ -6,9 +6,12 @@ import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,6 +101,9 @@ public class Game extends BasicGame implements Serializable
 	private Team myTeam;
 	public static final boolean DEBUG_MODE = false;
 	public static final String IMAGE_PATH = "images/";
+	
+	public static String MAP_PATH =  "maps/";
+	
 	private int mouseClicked = 0;
 
 	//Network
@@ -108,6 +114,17 @@ public class Game extends BasicGame implements Serializable
 
 	@Override
 	public void init(GameContainer container) throws SlickException {
+
+		final Class<?> referenceClass = Game.class; 
+		final URL url = referenceClass.getProtectionDomain().getCodeSource().getLocation();
+		try {
+			final File jarPath = new File(url.toURI()).getParentFile();
+			MAP_PATH = "/"+jarPath+"/maps/";
+		}
+		catch(final URISyntaxException e){
+			e.printStackTrace();
+		}
+		
 		container.setShowFPS(false);
 		objectList = new HashMap<String,GameObject>();
 		objectList.put("ship",new StandardShip(null,-1,-1,
@@ -139,7 +156,7 @@ public class Game extends BasicGame implements Serializable
 		myTeam=redTeam;
 		t= Timer.createTimer(1000);
 		doubleClickTimer = Timer.createTimer(1000);
-		isFullscreen=false;
+		isFullscreen=true;
 		isHost=true;
 		for(int i=0;i<10;i++){
 			this.numberGroup.add(null);
@@ -154,7 +171,7 @@ public class Game extends BasicGame implements Serializable
 		//Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		screenSize = new Dimension(container.getWidth(),container.getHeight());
 		input = container.getInput();
-		tiles = new TileMap(this,"maps/default.map");
+		tiles = new TileMap(this,Game.MAP_PATH+"default.map");
 		changeGameWorld(tiles.getWorld());
 		/**gameWorld = new World(this, new Dimension(2000, 2000));
 		setWorldView(new View(gameWorld, screenSize));
