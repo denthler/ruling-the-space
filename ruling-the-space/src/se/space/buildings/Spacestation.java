@@ -66,13 +66,13 @@ public class Spacestation extends se.space.GameObject {
 	}
 	
 	public void checkButtonPressed(int x,int y,Timer t){
-		System.out.println("pressed"+x+"-"+y);
+		//System.out.println("pressed"+x+"-"+y);
 		for(String s:buttons.keySet()){
 			Rectangle rct = buttons.get(s);
 			if(rct.contains(x, y)){
 				if(t.isDone()){
 					GameObject tempObj;
-					tempObj = GameObject.createObject(s, this.world, this.getX(), this.getY(), this.getTeam());
+					tempObj = GameObject.createObject(s, this.world, (int)this.getxPos(), (int)this.getyPos(), this.getTeam());
 					tempObj.setCurSpeed(tempObj.getSpeed());
 					tempObj.move((int)this.getMoveX(),(int)this.getMoveY());
 					this.build(tempObj, 10000);
