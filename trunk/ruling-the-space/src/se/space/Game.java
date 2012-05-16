@@ -156,7 +156,7 @@ public class Game extends BasicGame implements Serializable
 		myTeam=redTeam;
 		t= Timer.createTimer(1000);
 		doubleClickTimer = Timer.createTimer(1000);
-		isFullscreen=true;
+		isFullscreen=false;
 		isHost=true;
 		for(int i=0;i<10;i++){
 			this.numberGroup.add(null);
@@ -798,6 +798,13 @@ public class Game extends BasicGame implements Serializable
 			dragSelect.x=mouseWorldX;
 			dragSelect.y=mouseWorldY;
 		}
+		
+		/*for(GameObject obj:gameWorld.getGameObjects()){
+			if(obj.getType().equals("earth")){
+				Earth e = (Earth) obj;
+				g.draw(e.area);
+			}
+		}*/
 
 		//Draw GUI and rings around selected objects
 		g.resetTransform();

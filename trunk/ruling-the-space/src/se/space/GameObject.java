@@ -37,6 +37,7 @@ public class GameObject implements Serializable {
 	protected int price;
 	protected int damage=1;
 	protected Image sprite;
+	protected Rectangle spriteRect;
 	protected Image iconSprite;
 	protected String imgPath;
 	protected String imgIconPath;
@@ -51,6 +52,16 @@ public class GameObject implements Serializable {
 	protected transient Queue<GameObject> buildQueue;
 	Point fireAt;
 	private boolean alive=true;
+	
+	public Rectangle getSpriteRectangle(){
+		spriteRect.setCenterX((float) xPos);
+		spriteRect.setCenterY((float) yPos);
+		//spriteRect.setX((float) xPos);
+		//spriteRect.setY((float) yPos);
+		//spriteRect.setHeight(sprite.getHeight());
+		//spriteRect.setWidth(sprite.getWidth());
+		return spriteRect;
+	}
 
 	public GameObject(int x, int y, String imgPath,String imgIconPath){
 		this.imgPath = imgPath;
@@ -67,6 +78,7 @@ public class GameObject implements Serializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		spriteRect = new Rectangle(x,y,sprite.getWidth(),sprite.getHeight());
 		buildQueue= new LinkedList<GameObject>();
 		setLevel(1);
 	}
@@ -188,13 +200,11 @@ public class GameObject implements Serializable {
 			}
 		}
 		fireAt=null;
-		//		if(world.getGameObjects()!=null)
-		//	if(!getType().equals("earth.png"))
 		for(GameObject obj:world.getGameObjects()){
 			if(area.contains(obj.getX(), obj.getY())&&this.getTeam()!=obj.getTeam()){
-				if(!obj.getType().equals("earth")){
+				if(!this.getType().equals("earth") && !obj.getType().equals("earth")){			
 					obj.damage(damage);
-					setExp(getExp() + 1);
+					setExp(getExp() + 2);
 					int randomOffset = (int) (Math.random()*obj.getSprite().getWidth());
 					int randomOffset2 = (int) (Math.random()*obj.getSprite().getWidth());
 					fireAt= new Point(obj.getX()+randomOffset,obj.getY()+randomOffset2);
@@ -223,14 +233,13 @@ public class GameObject implements Serializable {
 	}
 	
 	public void damage(int dmg){
-		setExp(getExp() + 1);
 		int random=(int) (Math.random()*100);
 		if(random>20){
 			health-=dmg;
 		}
-		else{
-			setExp(getExp() + 1);
-		}
+//		else{
+//			setExp(getExp() + 1);
+//		}
 	}
 	public boolean isAlive() {
 		return alive;
