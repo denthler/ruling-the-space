@@ -66,6 +66,7 @@ public class Spacestation extends se.space.GameObject {
 	}
 	
 	public void checkButtonPressed(int x,int y,Timer t){
+		System.out.println("pressed"+x+"-"+y);
 		for(String s:buttons.keySet()){
 			Rectangle rct = buttons.get(s);
 			if(rct.contains(x, y)){

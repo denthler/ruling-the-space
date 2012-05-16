@@ -417,10 +417,9 @@ public class World implements Serializable {
 		return null;
 	}
 	public List<GameObject> getAllUnits(Rectangle rt){
-		rt.grow(20, 20);
 		List<GameObject> returnObj = new ArrayList<GameObject>();
 		for(GameObject object : getGameObjects()) {
-			if(rt.contains((float)object.getxPos(), (float)object.getyPos())){
+			if(rt.intersects(object.getSpriteRectangle())){
 				returnObj.add(object);
 			}
 		}
@@ -428,12 +427,12 @@ public class World implements Serializable {
 
 	}
 	public List<GameObject> getMyUnits(Rectangle rt){
-		rt.grow(20, 20);
 		List<GameObject> returnObj = new ArrayList<GameObject>();
 		for(GameObject object : getGameObjects()) {
-			if(rt.contains((float)object.getxPos(), (float)object.getyPos())){
-				if(object.getTeam()==getGame().getMyTeam())
+			if(rt.intersects(object.getSpriteRectangle())){//rt.contains((float)object.getxPos(), (float)object.getyPos())){
+				if(object.getTeam()==getGame().getMyTeam()){
 					returnObj.add(object);
+				}
 			}
 		}
 		return returnObj;

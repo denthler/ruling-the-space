@@ -105,9 +105,9 @@ public class Gui implements Serializable{
 					xPos=300;
 					yPos+=50;
 				}
-				if(yPos>screenSize.height-obj.getSprite().getHeight()){
+				/*if(yPos>screenSize.height-obj.getSprite().getHeight()){
 					break;
-				}
+				}*/
 				Rectangle tempRct=new Rectangle(xPos, yPos, obj.getSprite().getWidth(), obj.getSprite().getHeight());
 
 				rctGame.put(tempRct, obj);
