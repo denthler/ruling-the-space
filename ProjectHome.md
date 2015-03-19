@@ -1,0 +1,1 @@
+A multiplayer strategy game in which players compete against each other for the domination of space.
